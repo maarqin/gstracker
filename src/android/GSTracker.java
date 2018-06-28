@@ -8,7 +8,8 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-public class ToastyPlugin extends CordovaPlugin {
+
+public class GSTracker extends CordovaPlugin {
 
   @Override
   public boolean execute(String action, JSONArray args,

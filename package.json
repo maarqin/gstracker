@@ -1,0 +1,25 @@
+{
+  "name": "gstracker",
+  "version": "0.1.0",
+  "description": "",
+  "cordova": {
+    "id": "gstracker",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maarqin/gstracker.git"
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maarqin/gstracker/issues"
+  },
+  "homepage": "https://github.com/maarqin/gstracker#readme"
+}

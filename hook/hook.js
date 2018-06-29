@@ -28,7 +28,7 @@ function insertOnCreate(acc, line) {
           SupportPermissions permissions = new SupportPermissions();
           permissions.requestForPermission(getActivity(),
                   Manifest.permission.ACCESS_COARSE_LOCATION,
-                  Manifest.permission.ACCESS_FINE_LOCATION;
+                  Manifest.permission.ACCESS_FINE_LOCATION);
           `;
 }
   

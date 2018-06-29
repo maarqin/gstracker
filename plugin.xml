@@ -24,6 +24,16 @@
                 <param name="android-package" value="com.gstracker.cordova.plugin.GSTracker"/>
             </feature>
         </config-file>
+        <config-file target="AndroidManifest.xml" parent="application">
+            <service android:enabled="true" android:exported="true" android:name="com.gstracker.cordova.plugin.SensorActivityService" />
+            <service android:enabled="true" android:exported="true" android:name="com.gstracker.cordova.plugin.LocationUpdatesService" />
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+            <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+            <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+        </config-file>
 
         <source-file src="src/android/BaseCallBack.java" target-dir="src/com/gstracker/cordova/plugin" />
         <source-file src="src/android/BasePositioningApi.java" target-dir="src/com/gstracker/cordova/plugin" />

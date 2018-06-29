@@ -35,7 +35,7 @@ import java.util.TimerTask;
 import com.gstracker.cordova.plugin.Position;
 import com.gstracker.cordova.plugin.BasePositioningApi;
 
-import br.com.golsat.golfleet.R;
+import br.com.golsat.*;
 import retrofit2.Response;
 
 

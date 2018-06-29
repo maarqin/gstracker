@@ -4,7 +4,7 @@ import android.content.Context;
 
 import java.util.ArrayList;
 
-import com.gstracker.cordova.plugin.model.Position;
+import com.gstracker.cordova.plugin.Position;
 
 
 /**

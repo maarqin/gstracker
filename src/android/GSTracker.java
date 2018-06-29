@@ -15,18 +15,8 @@ public class GSTracker extends CordovaPlugin {
   public boolean execute(String action, JSONArray args,
     final CallbackContext callbackContext) {
       // Verify that the user sent a 'show' action
-      if (!action.equals("show")) {
+      if (!action.equals("run")) {
         callbackContext.error("\"" + action + "\" is not a recognized action.");
-        return false;
-      }
-      String message;
-      String duration;
-      try {
-        JSONObject options = args.getJSONObject(0);
-        message = options.getString("message");
-        duration = options.getString("duration");
-      } catch (JSONException e) {
-        callbackContext.error("Error encountered: " + e.getMessage());
         return false;
       }
 
@@ -36,4 +26,7 @@ public class GSTracker extends CordovaPlugin {
       callbackContext.sendPluginResult(pluginResult);
       return true;
   }
+  
+
+
 }

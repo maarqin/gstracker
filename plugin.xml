@@ -44,6 +44,7 @@
         <source-file src="src/android/SensorActivityService.java" target-dir="src/com/gstracker/cordova/plugin" />
         <source-file src="src/android/SuccessCallback.java" target-dir="src/com/gstracker/cordova/plugin" />
         <source-file src="src/android/Utils.java" target-dir="src/com/gstracker/cordova/plugin" />
+        <source-file src="src/android/SupportPermissions.java" target-dir="src/com/gstracker/cordova/plugin" />
         <source-file src="src/android/GSTracker.java" target-dir="src/com/gstracker/cordova/plugin" />
 
         <framework src="com.google.android.gms:play-services-location:15.0.1" />

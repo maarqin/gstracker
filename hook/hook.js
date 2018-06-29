@@ -24,7 +24,12 @@ function insertOnCreate(acc, line) {
   ${line}
           Hawk.init(this).build();
           myReceiver = new SensorActivityService.MyReceiver();
-          intent = new Intent(this, SensorActivityService.class);`;
+          intent = new Intent(this, SensorActivityService.class);
+          SupportPermissions permissions = new SupportPermissions();
+          permissions.requestForPermission(getActivity(),
+                  Manifest.permission.ACCESS_COARSE_LOCATION,
+                  Manifest.permission.ACCESS_FINE_LOCATION;
+          `;
 }
   
 function gsTrackMethods(acc, line) {

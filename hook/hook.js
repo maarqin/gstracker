@@ -92,7 +92,8 @@ module.exports = ctx => {
 	const fs = ctx.requireCordovaModule('fs');
 	const path = ctx.requireCordovaModule('path');
 	const deferral = ctx.requireCordovaModule('q').defer();
-
+  const platformRoot = path.join(ctx.opts.projectRoot, 'platforms/android');
+  
   const mainActivityPath = path.join(platformRoot, 'src/br/com/golsat/golfleetdriver/MainActivity.java');
   fs.readFile(mainActivityPath, 'utf-8', (err, data) => {
     if (err)

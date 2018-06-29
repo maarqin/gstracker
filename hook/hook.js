@@ -1,10 +1,11 @@
 function keepLine(acc, line) {
   return `${acc}
   ${line}`;
-  }
+}
   
-  function writeImports(acc, line) {
-  return `${acc}
+function writeImports(acc, line) {
+  return `//gstrack modified
+  ${acc}
   ${line}
   import android.Manifest;
   import android.content.ComponentName;
@@ -15,16 +16,16 @@ function keepLine(acc, line) {
   import android.os.IBinder;
   import android.support.v4.content.LocalBroadcastManager;
   import com.gstracker.cordova.plugin.SensorActivityService;`;
-  }
+}
   
-  function insertOnCreate(acc, line) {
+function insertOnCreate(acc, line) {
   return `${acc}
   ${line}
           myReceiver = new SensorActivityService.MyReceiver();
           intent = new Intent(this, SensorActivityService.class);`;
-  }
+}
   
-  function gsTrackMethods(acc, line) {
+function gsTrackMethods(acc, line) {
   return `${acc}
   ${line}
   
@@ -83,7 +84,7 @@ function keepLine(acc, line) {
         mSensor.removeActivityUpdates(intent);
         stopService(intent);
       }`;
-  }
+}
 
 module.exports = ctx => {
   if (ctx.opts.platforms.indexOf('android') < 0)
@@ -91,58 +92,61 @@ module.exports = ctx => {
 	const fs = ctx.requireCordovaModule('fs');
 	const path = ctx.requireCordovaModule('path');
 	const deferral = ctx.requireCordovaModule('q').defer();
-  const platformRoot = path.join(ctx.opts.projectRoot, 'platforms/android');
-  
+
   const mainActivityPath = path.join(platformRoot, 'src/br/com/golsat/golfleetdriver/MainActivity.java');
   fs.readFile(mainActivityPath, 'utf-8', (err, data) => {
     if (err)
       deferral.resolve();
-
-    const fileLines = data.split('\n');
-    const editedFile = fileLines.reduce((acc, line, index, arr) => {
-      if (line.includes('package'))
-        return writeImports(acc, line);
-      else if (line.includes('loadUrl'))
-        return insertOnCreate(acc, line);
-      else if (index == arr.length - 2)
-        return gsTrackMethods(acc, line);
-      else
-        return keepLine(acc, line);
-    }, '');
-    
-    fs.writeFile(mainActivityPath, editedFile, err => {
-      if(err)
-        deferral.resolve();
+    else if (data.includes('//gstrack modified'))
       deferral.resolve();
-    });
+    else {
+      const fileLines = data.split('\n');
+      const editedFile = fileLines.reduce((acc, line, index, arr) => {
+        if (line.includes('package'))
+          return writeImports(acc, line);
+        else if (line.includes('loadUrl'))
+          return insertOnCreate(acc, line);
+        else if (index == arr.length - 2)
+          return gsTrackMethods(acc, line);
+        else
+          return keepLine(acc, line);
+      }, '');
+      console.log(editedFile);
+      fs.writeFile(mainActivityPath, editedFile, err => {
+        if(err)
+          deferral.resolve();
+        deferral.resolve();
+      });
+    }
   });
 
   return deferral.promise;
 };
 
-
-
 // const fs = require('fs');
 
 // fs.readFile('MainActivity.java', 'utf-8', (err, data) => {
-// 	if (err)
-// 		throw err;
-
-// 	const fileLines = data.split('\n');
-// 	const editedFile = fileLines.reduce((acc, line, index, arr) => {
-// 		if (line.includes('package'))
-// 			return writeImports(acc, line);
-// 		else if (line.includes('loadUrl'))
-// 			return insertOnCreate(acc, line);
-// 		else if (index == arr.length - 2)
-// 			return gsTrackMethods(acc, line);
-// 		else
-// 			return keepLine(acc, line);
-//   }, '');
-  
-//   fs.writeFile('MainActivity.java', editedFile, err => {
-//     if(err)
-//       throw err;
-//     console.log('Done!');
-//   });
+//   if (err)
+//     throw err;
+//   else if (data.includes('//gstrack modified'))
+//     return console.log('Done!');
+//   else {
+//     const fileLines = data.split('\n');
+//     const editedFile = fileLines.reduce((acc, line, index, arr) => {
+//       if (line.includes('package'))
+//         return writeImports(acc, line);
+//       else if (line.includes('loadUrl'))
+//         return insertOnCreate(acc, line);
+//       else if (index == arr.length - 2)
+//         return gsTrackMethods(acc, line);
+//       else
+//         return keepLine(acc, line);
+//     }, '');
+    
+//     fs.writeFile('MainActivity.java', editedFile, err => {
+//       if(err)
+//         throw err;
+//       console.log('Done!');
+//     });
+//   }
 // });

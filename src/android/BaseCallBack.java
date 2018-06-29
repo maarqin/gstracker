@@ -1,4 +1,4 @@
-package com.gstracker.cordova.plugin.network;
+package com.gstracker.cordova.plugin;
 
 import retrofit2.Response;
 

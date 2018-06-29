@@ -25,6 +25,15 @@
             </feature>
         </config-file>
 
+        <source-file src="src/android/BaseCallBack.java" target-dir="src/com/gstracker/cordova/plugin" />
+        <source-file src="src/android/BasePositioningApi.java" target-dir="src/com/gstracker/cordova/plugin" />
+        <source-file src="src/android/CompositePKPosition.java" target-dir="src/com/gstracker/cordova/plugin" />
+        <source-file src="src/android/LocationUpdatesService.java" target-dir="src/com/gstracker/cordova/plugin" />
+        <source-file src="src/android/Position.java" target-dir="src/com/gstracker/cordova/plugin" />
+        <source-file src="src/android/RESTfulClient.java" target-dir="src/com/gstracker/cordova/plugin" />
+        <source-file src="src/android/SensorActivityService.java" target-dir="src/com/gstracker/cordova/plugin" />
+        <source-file src="src/android/SuccessCallback.java" target-dir="src/com/gstracker/cordova/plugin" />
+        <source-file src="src/android/Utils.java" target-dir="src/com/gstracker/cordova/plugin" />
         <source-file src="src/android/GSTracker.java" target-dir="src/com/gstracker/cordova/plugin" />
     </platform>
 </plugin>

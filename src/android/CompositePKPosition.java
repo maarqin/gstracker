@@ -1,4 +1,4 @@
-package com.gstracker.cordova.plugin.model;
+package com.gstracker.cordova.plugin;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

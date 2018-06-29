@@ -1,4 +1,4 @@
-package com.gstracker.cordova.plugin.latest;
+package com.gstracker.cordova.plugin;
 
 import android.app.Notification;
 import android.app.NotificationChannel;

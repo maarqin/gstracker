@@ -7,7 +7,7 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 
-import br.com.golsat.*;
+import br.com.golsat.golfleetdriver.*;
 
 public class GSTracker extends CordovaPlugin {
 

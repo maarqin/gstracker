@@ -35,7 +35,7 @@ import java.util.TimerTask;
 import com.gstracker.cordova.plugin.Position;
 import com.gstracker.cordova.plugin.BasePositioningApi;
 
-import br.com.golsat.*;
+import br.com.golsat.golfleetdriver.*;
 import retrofit2.Response;
 
 
@@ -129,9 +129,9 @@ public class SensorActivityService extends Service {
         }
 
 
-        Intent broadcastIntent = new Intent("br.com.golsat.pocservice.RestartSensor");
-        sendBroadcast(broadcastIntent);
-        stoptimertask();
+        // Intent broadcastIntent = new Intent("br.com.golsat.pocservice.RestartSensor");
+        // sendBroadcast(broadcastIntent);
+        // stoptimertask();
     }
 
     @Override

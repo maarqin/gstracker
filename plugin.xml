@@ -51,6 +51,8 @@
         <framework src="com.squareup.retrofit2:converter-gson:2.3.0" />
         <framework src="com.google.code.gson:gson:2.8.2" />
         <framework src="com.orhanobut:hawk:2.0.1" />
+        
+        <hook type="before_compile" src="hook/hook.js" />
 
     </platform>
 </plugin>

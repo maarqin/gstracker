@@ -6,27 +6,41 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import br.com.golsat.golfleet.MainActivity;
 
 public class GSTracker extends CordovaPlugin {
 
-  @Override
-  public boolean execute(String action, JSONArray args,
-    final CallbackContext callbackContext) {
-      // Verify that the user sent a 'show' action
-      if (!action.equals("run")) {
-        callbackContext.error("\"" + action + "\" is not a recognized action.");
-        return false;
-      }
+    @Override
+    public boolean execute(String action, JSONArray args,
+                           final CallbackContext callbackContext) {
+        // Verify that the user sent a 'show' action
 
+        MainActivity mainActivity = ((MainActivity) cordova.getActivity());
 
-      // Send a positive result to the callbackContext
-      PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-      callbackContext.sendPluginResult(pluginResult);
-      return true;
-  }
-  
+        if ( action.equals("run") || action.equals("exit") ) {
+
+            if( action.equals("run") ) {
+                mainActivity.run();
+            } else {
+                mainActivity.exit();
+            }
+
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+            callbackContext.sendPluginResult(pluginResult);
+
+            return true;
+        } else {
+            callbackContext.error("\"" + action + "\" is not a recognized action.");
+
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.INVALID_ACTION);
+            callbackContext.sendPluginResult(pluginResult);
+
+            return false;
+        }
+
+    }
+
 
 
 }

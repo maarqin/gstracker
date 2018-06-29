@@ -3,7 +3,7 @@ package com.gstracker.cordova.plugin;
 
 import java.util.ArrayList;
 
-import com.gstracker.cordova.plugin.model.Position;
+import com.gstracker.cordova.plugin.Position;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;

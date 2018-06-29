@@ -33,8 +33,8 @@ import com.orhanobut.hawk.Hawk;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import com.gstracker.cordova.plugin.model.CompositePKPosition;
-import com.gstracker.cordova.plugin.model.Position;
+import com.gstracker.cordova.plugin.CompositePKPosition;
+import com.gstracker.cordova.plugin.Position;
 
 import br.com.golsat.golfleet.R;
 

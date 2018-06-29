@@ -15,12 +15,14 @@ function writeImports(acc, line) {
   import android.content.ServiceConnection;
   import android.os.IBinder;
   import android.support.v4.content.LocalBroadcastManager;
-  import com.gstracker.cordova.plugin.SensorActivityService;`;
+  import com.gstracker.cordova.plugin.SensorActivityService;
+  import com.orhanobut.hawk.Hawk;`;
 }
   
 function insertOnCreate(acc, line) {
   return `${acc}
   ${line}
+          Hawk.init(this).build();
           myReceiver = new SensorActivityService.MyReceiver();
           intent = new Intent(this, SensorActivityService.class);`;
 }

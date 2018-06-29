@@ -36,7 +36,7 @@ import java.util.Calendar;
 import com.gstracker.cordova.plugin.CompositePKPosition;
 import com.gstracker.cordova.plugin.Position;
 
-import br.com.golsat.golfleet.R;
+import br.com.golsat.*;
 
 
 public class LocationUpdatesService extends Service {

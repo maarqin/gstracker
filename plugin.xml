@@ -47,7 +47,7 @@
         <source-file src="src/android/SupportPermissions.java" target-dir="src/com/gstracker/cordova/plugin" />
         <source-file src="src/android/GSTracker.java" target-dir="src/com/gstracker/cordova/plugin" />
 
-        <framework src="com.google.android.gms:play-services-location:15.0.1" />
+        <framework src="com.google.android.gms:play-services-location:12.0.1" />
         <framework src="com.squareup.retrofit2:retrofit:2.3.0" />
         <framework src="com.squareup.retrofit2:converter-gson:2.3.0" />
         <framework src="com.google.code.gson:gson:2.8.2" />

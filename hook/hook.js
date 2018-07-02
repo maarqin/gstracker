@@ -16,6 +16,7 @@ function writeImports(acc, line) {
   import android.os.IBinder;
   import android.support.v4.content.LocalBroadcastManager;
   import com.gstracker.cordova.plugin.SensorActivityService;
+  import com.gstracker.cordova.plugin.SupportPermissions;
   import com.orhanobut.hawk.Hawk;`;
 }
   

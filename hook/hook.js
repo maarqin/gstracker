@@ -27,7 +27,7 @@ function insertOnCreate(acc, line) {
           myReceiver = new SensorActivityService.MyReceiver();
           intent = new Intent(this, SensorActivityService.class);
           SupportPermissions permissions = new SupportPermissions();
-          permissions.requestForPermission(getActivity(),
+          permissions.requestForPermission(this,
                   Manifest.permission.ACCESS_COARSE_LOCATION,
                   Manifest.permission.ACCESS_FINE_LOCATION);
           `;

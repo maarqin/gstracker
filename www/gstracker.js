@@ -3,9 +3,11 @@
 function GSTracker() {}
 
 // The function that passes work along to native shells
-// Message is a string, duration may be 'long' or 'short'
-GSTracker.prototype.run = function(successCallback, errorCallback) {
-  cordova.exec(successCallback, errorCallback, 'GSTracker', 'run', []);
+GSTracker.prototype.run = function(userId, successCallback, errorCallback) {
+  var options = {};
+  options.userId = userId;
+
+  cordova.exec(successCallback, errorCallback, 'GSTracker', 'run', [options]);
 }
 GSTracker.prototype.exit = function(successCallback, errorCallback) {
   cordova.exec(successCallback, errorCallback, 'GSTracker', 'exit', []);

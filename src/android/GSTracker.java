@@ -5,7 +5,10 @@ package com.gstracker.cordova.plugin;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
+
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import br.com.golsat.golfleetdriver.*;
 
@@ -21,7 +24,16 @@ public class GSTracker extends CordovaPlugin {
         if ( action.equals("run") || action.equals("exit") ) {
 
             if( action.equals("run") ) {
-                mainActivity.run();
+                try {
+                    JSONObject options = args.getJSONObject(0);
+                    int userId = options.getInt("userId");
+
+                    mainActivity.run(userId);
+                } catch (JSONException e) {
+                    callbackContext.error("Error encountered: " + e.getMessage());
+                    return false;
+                }
+
             } else {
                 mainActivity.exit();
             }
@@ -40,7 +52,5 @@ public class GSTracker extends CordovaPlugin {
         }
 
     }
-
-
 
 }

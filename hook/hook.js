@@ -36,7 +36,8 @@ function insertOnCreate(acc, line) {
 function gsTrackMethods(acc, line) {
   return `${acc}
   ${line}
-  
+
+      static public final String USER_ID = "USER_ID";
       private SensorActivityService.MyReceiver myReceiver;
       public SensorActivityService mSensor = null;
       private boolean mBound = false;
@@ -84,7 +85,9 @@ function gsTrackMethods(acc, line) {
         super.onStop();
       }
   
-      public void run() {
+      public void run(int userId) {
+        Hawk.put(USER_ID, userId);
+
         mSensor.requestActivityUpdates(intent);
       }
   

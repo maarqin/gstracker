@@ -243,7 +243,7 @@ public class LocationUpdatesService extends Service {
         ArrayList<Position> positions = Hawk.get(KEY_POSITIONS);
         if( positions == null ) positions = new ArrayList<Position>();
 
-        positions.add(new Position(new CompositePKPosition(2, String.valueOf(Calendar.getInstance().getTimeInMillis())), location.getLatitude(), location.getLongitude()));
+        positions.add(new Position(new CompositePKPosition(Hawk.get(MainActivity.USER_ID), String.valueOf(Calendar.getInstance().getTimeInMillis())), location.getLatitude(), location.getLongitude()));
 
         Hawk.put(KEY_POSITIONS, positions);
     }

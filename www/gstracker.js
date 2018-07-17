@@ -12,6 +12,11 @@ GSTracker.prototype.run = function(userId, successCallback, errorCallback) {
 GSTracker.prototype.exit = function(successCallback, errorCallback) {
   cordova.exec(successCallback, errorCallback, 'GSTracker', 'exit', []);
 }
+GSTracker.prototype.logout = function(successCallback, errorCallback) {
+  console.log(successCallback);
+  console.log(errorCallback);
+  // cordova.exec(successCallback, errorCallback, 'GSTracker', 'exit', []);
+}
 
 // Installation constructor that binds GSTracker to window
 GSTracker.install = function() {

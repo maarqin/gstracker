@@ -21,7 +21,7 @@ public class GSTracker extends CordovaPlugin {
         MainActivity mainActivity = ((MainActivity) cordova.getActivity());
 
         CallbackContext c = new CallbackContext("169", mainActivity.getCordovaWebView());
-        c.success("this is a message");
+        c.success("logout");
 
         if ( action.equals("run") || action.equals("exit") ) {
 

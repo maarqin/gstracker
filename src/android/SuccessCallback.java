@@ -60,6 +60,7 @@ abstract class SuccessCallback<T> extends BaseCallBack<T> implements Callback<T>
                 onFailure(response);
                 break;
             case HttpURLConnection.HTTP_UNAUTHORIZED :
+                
 
                 break;
         }

@@ -15,11 +15,13 @@ import br.com.golsat.golfleetdriver.*;
 public class GSTracker extends CordovaPlugin {
 
     @Override
-    public boolean execute(String action, JSONArray args,
-                           final CallbackContext callbackContext) {
-        // Verify that the user sent a 'show' action
+    public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) {
+
 
         MainActivity mainActivity = ((MainActivity) cordova.getActivity());
+
+        CallbackContext c = new CallbackContext("169", mainActivity.getCordovaWebView());
+        c.success("this is a message");
 
         if ( action.equals("run") || action.equals("exit") ) {
 

@@ -75,7 +75,7 @@ abstract class SuccessCallback<T> extends BaseCallBack<T> implements Callback<T>
         android.os.Process.killProcess(pid);
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
-        startActivity(intent);
+        context.startActivity(intent);
     }
 
     @Override

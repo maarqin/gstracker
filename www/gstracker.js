@@ -6,7 +6,7 @@ function GSTracker() {}
 GSTracker.prototype.run = function(userId, successCallback, errorCallback) {
   var options = {};
   options.userId = userId;
-  options.userEmail = userEmail;
+  // options.userEmail = userEmail;
 
   cordova.exec(successCallback, errorCallback, 'GSTracker', 'run', [options]);
 }

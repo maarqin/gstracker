@@ -37,7 +37,7 @@ public class GSTracker extends CordovaPlugin {
 
                 try {
                     // clearing app data
-                    String packageName = getApplicationContext().getPackageName();
+                    String packageName = mainActivity.getApplicationContext().getPackageName();
                     Runtime runtime = Runtime.getRuntime();
                     runtime.exec("pm clear "+packageName);
 

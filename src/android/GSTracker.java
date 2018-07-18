@@ -6,6 +6,8 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 
+import android.content.Intent;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,9 +22,6 @@ public class GSTracker extends CordovaPlugin {
 
         MainActivity mainActivity = ((MainActivity) cordova.getActivity());
 
-        CallbackContext c = new CallbackContext("169", mainActivity.getCordovaWebView());
-        c.success("logout");
-
         if ( action.equals("run") || action.equals("exit") ) {
 
             if( action.equals("run") ) {
@@ -36,6 +35,19 @@ public class GSTracker extends CordovaPlugin {
                     return false;
                 }
 
+                try {
+                    // clearing app data
+                    String packageName = getApplicationContext().getPackageName();
+                    Runtime runtime = Runtime.getRuntime();
+                    runtime.exec("pm clear "+packageName);
+
+                    mainActivity.startActivity(new Intent(mainActivity, MainActivity.class));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                
+                    
             } else {
                 mainActivity.exit();
             }

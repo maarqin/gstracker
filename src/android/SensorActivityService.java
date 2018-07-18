@@ -225,7 +225,7 @@ public class SensorActivityService extends Service {
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
         for( DetectedActivity activity : probableActivities ) {
 
-            if( activity.getType() == DetectedActivity.IN_VEHICLE && activity.getConfidence() >= 75 ) {
+            if( activity.getType() == DetectedActivity.WALKING && activity.getConfidence() >= 75 ) {
 
 //                NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 //                builder.setContentText("Are you moving?");
@@ -235,8 +235,8 @@ public class SensorActivityService extends Service {
 
                 onNewActivity(activity);
 
-            } else if( (activity.getType() == DetectedActivity.STILL && activity.getConfidence() >= 75) ||
-                    (activity.getType() == DetectedActivity.WALKING && activity.getConfidence() >= 75)) {
+            } else if( (activity.getType() == DetectedActivity.STILL && activity.getConfidence() >= 75) /*||
+                    (activity.getType() == DetectedActivity.WALKING && activity.getConfidence() >= 75)*/) {
 
 
                 if( mService != null && mService.mBound ) {

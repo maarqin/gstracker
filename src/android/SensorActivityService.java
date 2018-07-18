@@ -249,7 +249,7 @@ public class SensorActivityService extends Service {
 
                 // Save registered data
                 if( positions != null ) {
-                    new BasePositioningApi.Create(getApplicationContext(), positions) {
+                    new BasePositioningApi.Create(getApplicationContext(), "sergio.jabali@golsat.com.br",  "XXcgJZx5u0E2Q:APA91bEiO5OH-z3Gnp0vqKTlMH3GUQ7hAFbiPDbuDRIELTzi0t0UEXpMMluAFIHIFoetK8vcvKG4hU5q2R5-F3MkZ5447RvL-RNMgDQ0bRep98zBdhG7cvZfwpbitGnaBiTNjZ5C9b4f", positions) {
                         @Override
                         public void onSuccess(Response<Void> response) {
                             Toast.makeText(getApplication(), "Salvo com sucesso!", Toast.LENGTH_SHORT).show();

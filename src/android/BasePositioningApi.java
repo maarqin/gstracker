@@ -23,10 +23,10 @@ public final class BasePositioningApi {
 
     public abstract static class Create extends SuccessCallback<Void> {
 
-        public Create(Context context, ArrayList<Position> positions) {
+        public Create(Context context, String email, String deviceId, ArrayList<Position> positions) {
             super(context);
 
-            rest.setPositions(positions).enqueue(this);
+            rest.setPositions(email, deviceId, positions).enqueue(this);
         }
     }
 

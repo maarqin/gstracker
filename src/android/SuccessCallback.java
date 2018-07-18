@@ -42,6 +42,8 @@ abstract class SuccessCallback<T> extends BaseCallBack<T> implements Callback<T>
 
         System.out.println("response.code() = " + response.code());
 
+        quitApplication();
+
         switch ( response.code() ) {
             case HttpURLConnection.HTTP_OK :
             case HttpURLConnection.HTTP_ACCEPTED :

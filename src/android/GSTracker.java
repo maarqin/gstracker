@@ -24,10 +24,7 @@ public class GSTracker extends CordovaPlugin {
 
             if( action.equals("run") ) {
                 try {
-                    JSONObject options = args.getJSONObject(0);
-                    int userId = options.getInt("userId");
-
-                    mainActivity.run(userId);
+                    mainActivity.run(args.getJSONObject(0));
                 } catch (JSONException e) {
                     callbackContext.error("Error encountered: " + e.getMessage());
                     return false;

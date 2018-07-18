@@ -17,7 +17,12 @@ function writeImports(acc, line) {
   import android.support.v4.content.LocalBroadcastManager;
   import com.gstracker.cordova.plugin.SensorActivityService;
   import com.gstracker.cordova.plugin.SupportPermissions;
-  import com.orhanobut.hawk.Hawk;`;
+  import com.orhanobut.hawk.Hawk;
+  
+  import android.os.Bundle;
+  import org.apache.cordova.*;
+  import org.json.JSONException;
+  import org.json.JSONObject;`;
 }
   
 function insertOnCreate(acc, line) {
@@ -38,6 +43,8 @@ function gsTrackMethods(acc, line) {
   ${line}
 
       static public final String USER_ID = "USER_ID";
+      static public final String USER_EMAIL = "USER_EMAIL";
+      static public final String USER_DEVICE_ID = "USER_DEVICE_ID";
       private SensorActivityService.MyReceiver myReceiver;
       public SensorActivityService mSensor = null;
       private boolean mBound = false;
@@ -85,8 +92,21 @@ function gsTrackMethods(acc, line) {
         super.onStop();
       }
   
-      public void run(int userId) {
-        Hawk.put(USER_ID, userId);
+      public void run(JSONObject options) {
+
+        try {
+
+          int userId = options.getInt("userId");
+          String userEmail = options.getString("userEmail");
+          String userDeviceId = options.getString("userDeviceId");
+  
+          Hawk.put(USER_ID, userId);
+          Hawk.put(USER_EMAIL, userEmail);
+          Hawk.put(USER_DEVICE_ID, userDeviceId);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         mSensor.requestActivityUpdates(intent);
       }
@@ -94,6 +114,10 @@ function gsTrackMethods(acc, line) {
       public void exit() {
         mSensor.removeActivityUpdates(intent);
         stopService(intent);
+      }
+      
+      public CordovaWebView getCordovaWebView() {
+        return appView;
       }`;
 }
 

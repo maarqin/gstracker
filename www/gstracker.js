@@ -3,10 +3,11 @@
 function GSTracker() {}
 
 // The function that passes work along to native shells
-GSTracker.prototype.run = function(userId, successCallback, errorCallback) {
+GSTracker.prototype.run = function(userId, userEmail, userDeviceId, successCallback, errorCallback) {
   var options = {};
   options.userId = userId;
-  // options.userEmail = userEmail;
+  options.userEmail = userEmail;
+  options.userDeviceId = userDeviceId;
 
   cordova.exec(successCallback, errorCallback, 'GSTracker', 'run', [options]);
 }

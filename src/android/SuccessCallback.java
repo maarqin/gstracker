@@ -14,6 +14,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import android.content.Intent;
+
+
 /**
  * Created by thomaz on 05/06/18.
  */
@@ -61,10 +64,18 @@ abstract class SuccessCallback<T> extends BaseCallBack<T> implements Callback<T>
                 break;
             case HttpURLConnection.HTTP_UNAUTHORIZED :
                 
-
+                quitApplication();
                 break;
         }
 
+    }
+
+    private void quitApplication(){
+        int pid = android.os.Process.myPid();
+        android.os.Process.killProcess(pid);
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        startActivity(intent);
     }
 
     @Override

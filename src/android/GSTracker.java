@@ -6,8 +6,6 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 
-import android.content.Intent;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,19 +32,6 @@ public class GSTracker extends CordovaPlugin {
                     callbackContext.error("Error encountered: " + e.getMessage());
                     return false;
                 }
-
-                try {
-                    // clearing app data
-                    String packageName = mainActivity.getApplicationContext().getPackageName();
-                    Runtime runtime = Runtime.getRuntime();
-                    runtime.exec("pm clear "+packageName);
-
-                    mainActivity.startActivity(new Intent(mainActivity, MainActivity.class));
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                
                     
             } else {
                 mainActivity.exit();

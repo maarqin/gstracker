@@ -16,7 +16,8 @@ import retrofit2.http.POST;
  */
 public interface RESTfulClient {
 
-    String API_URL = "http://vm-devtest1-ubu.gs.interno:6001/";
+    // String API_URL = "http://vm-devtest1-ubu.gs.interno:6001/";
+    String API_URL = "http://driver-ws.golsat.com.br:6001/";
 
     @GET("driver-positioning")
     Call<ArrayList<Position>> getPositions();

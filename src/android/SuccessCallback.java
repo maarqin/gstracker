@@ -9,7 +9,6 @@ import com.google.gson.GsonBuilder;
 import java.net.HttpURLConnection;
 import java.net.UnknownHostException;
 
-import br.com.golsat.motionlocationpoc.latest.SensorActivityService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

@@ -245,6 +245,8 @@ public class SensorActivityService extends Service {
                     unbindService(mServiceConnection);
                 }
 
+                Hawk.init(this).build();
+
                 ArrayList<Position> positions = Hawk.get(LocationUpdatesService.KEY_POSITIONS);
 
                 String email = Hawk.get(MainActivity.USER_EMAIL);

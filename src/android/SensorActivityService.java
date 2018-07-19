@@ -200,6 +200,17 @@ public class SensorActivityService extends Service {
     }
 
     /**
+     * @param intent Intent
+     */
+    public PendingIntent removeActivityUpdates(Intent intent) {
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        ActivityRecognition.getClient(this).removeActivityUpdates(pendingIntent);
+
+        return pendingIntent;
+    }
+
+    /**
      * @param probableActivities
      */
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {

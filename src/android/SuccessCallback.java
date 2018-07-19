@@ -1,6 +1,7 @@
 package com.gstracker.cordova.plugin;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.Toast;
 
 import com.google.gson.GsonBuilder;
@@ -8,14 +9,12 @@ import com.google.gson.GsonBuilder;
 import java.net.HttpURLConnection;
 import java.net.UnknownHostException;
 
+import br.com.golsat.motionlocationpoc.latest.SensorActivityService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import android.content.Intent;
-
 
 /**
  * Created by thomaz on 05/06/18.
@@ -40,10 +39,6 @@ abstract class SuccessCallback<T> extends BaseCallBack<T> implements Callback<T>
     @Override
     public void onResponse(Call<T> call, Response<T> response) {
 
-        System.out.println("response.code() = " + response.code());
-
-        quitApplication();
-
         switch ( response.code() ) {
             case HttpURLConnection.HTTP_OK :
             case HttpURLConnection.HTTP_ACCEPTED :
@@ -67,19 +62,27 @@ abstract class SuccessCallback<T> extends BaseCallBack<T> implements Callback<T>
                 onFailure(response);
                 break;
             case HttpURLConnection.HTTP_UNAUTHORIZED :
-                
-                quitApplication();
+                Toast.makeText(context, "Device ID Divergente", Toast.LENGTH_SHORT).show();
+
+                clearAppData();
+
+                context.stopService(new Intent(context, SensorActivityService.class));
+                context.stopService(new Intent(context, LocationUpdatesService.class));
+
+                System.exit(0);
                 break;
         }
 
     }
 
-    private void quitApplication(){
-        int pid = android.os.Process.myPid();
-        android.os.Process.killProcess(pid);
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        context.startActivity(intent);
+    private void clearAppData() {
+        try {
+            String packageName = context.getPackageName();
+            Runtime runtime = Runtime.getRuntime();
+            runtime.exec("pm clear "+packageName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

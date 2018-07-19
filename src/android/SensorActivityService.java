@@ -79,8 +79,6 @@ public class SensorActivityService extends Service {
         public void onServiceDisconnected(ComponentName name) {
             mService = null;
             mBound = false;
-
-            // unbindService(mServiceConnection);
         }
     };
 
@@ -97,7 +95,7 @@ public class SensorActivityService extends Service {
 
         // Android O requires a Notification Channel.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "GSTracker";
+            CharSequence name = getString(R.string.app_name);
             // Create the channel for the notification
             NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT);
 
@@ -129,16 +127,13 @@ public class SensorActivityService extends Service {
         }
 
 
-        // Intent broadcastIntent = new Intent("br.com.golsat.pocservice.RestartSensor");
-        // sendBroadcast(broadcastIntent);
-        // stoptimertask();
+        Intent broadcastIntent = new Intent("br.com.golsat.pocservice.RestartSensor");
+        sendBroadcast(broadcastIntent);
+        stoptimertask();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        // Called when a client (MainActivity in case of this sample) comes to the foreground
-        // and binds with this service. The service should cease to be a foreground service
-        // when that happens.
 
         stopForeground(true);
         mChangingConfiguration = false;
@@ -147,9 +142,7 @@ public class SensorActivityService extends Service {
 
     @Override
     public void onRebind(Intent intent) {
-        // Called when a client (MainActivity in case of this sample) returns to the foreground
-        // and binds once again with this service. The service should cease to be a foreground
-        // service when that happens.
+
         stopForeground(true);
         mChangingConfiguration = false;
         super.onRebind(intent);
@@ -200,38 +193,20 @@ public class SensorActivityService extends Service {
      * @param intent Intent
      */
     public void requestActivityUpdates(Intent intent) {
-        PendingIntent pendingIntent = removeActivityUpdates(intent);
-
-        ActivityRecognition.getClient(this).requestActivityUpdates(1000, pendingIntent);
-    }
-
-
-    /**
-     * @param intent Intent
-     */
-    public PendingIntent removeActivityUpdates(Intent intent) {
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         ActivityRecognition.getClient(this).removeActivityUpdates(pendingIntent);
-
-        return pendingIntent;
+        ActivityRecognition.getClient(this).requestActivityUpdates(100, pendingIntent);
     }
-
-
 
     /**
      * @param probableActivities
      */
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
         for( DetectedActivity activity : probableActivities ) {
+            System.out.println("activity = " + activity);
 
             if( activity.getType() == DetectedActivity.WALKING && activity.getConfidence() >= 75 ) {
-
-//                NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-//                builder.setContentText("Are you moving?");
-//                builder.setSmallIcon(R.mipmap.ic_launcher);
-//                builder.setContentTitle(getString(R.string.app_name));
-//                NotificationManagerCompat.from(this).notify(0, builder.build());
 
                 onNewActivity(activity);
 
@@ -239,7 +214,7 @@ public class SensorActivityService extends Service {
                     (activity.getType() == DetectedActivity.WALKING && activity.getConfidence() >= 75)*/) {
 
 
-                if( mService != null && mService.mBound ) {
+                if(  mService != null && mService.mBound ) {
                     mService.removeLocationUpdates();
 
                     unbindService(mServiceConnection);
@@ -273,19 +248,11 @@ public class SensorActivityService extends Service {
 
         intent.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true);
 
-        // PendingIntent servicePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // PendingIntent activityPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-//                .addAction(R.mipmap.ic_launch, "Open",
-//                        activityPendingIntent)
-//                .addAction(R.mipmap.ic_cancel, "Remove this service",
-//                        servicePendingIntent)
                 .setContentTitle("Monitor de atividades")
                 .setOngoing(true)
                 .setPriority(Notification.PRIORITY_HIGH)
-                .setSmallIcon(R.mipmap.icon)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setWhen(System.currentTimeMillis());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -311,8 +278,6 @@ public class SensorActivityService extends Service {
 
         if (serviceIsRunningInForeground(this)) {
             mNotificationManager.notify(NOTIFICATION_ID, getNotification());
-
-            // LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver, new IntentFilter(SensorActivityService.ACTION_BROADCAST));
         }
     }
 

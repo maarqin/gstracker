@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import com.gstracker.cordova.plugin.Position;
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.Query;
+import retrofit2.http.Path;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 
@@ -23,6 +23,6 @@ public interface RESTfulClient {
     Call<ArrayList<Position>> getPositions();
 
     @POST("driver-positioning/{email}/{deviceId}")
-    Call<Void> setPositions(@Query("email") String email, @Query("deviceId") String deviceId, @Body ArrayList<Position> user);
+    Call<Void> setPositions(@Path("email") String email, @Path("deviceId") String deviceId, @Body ArrayList<Position> user);
 
 }

@@ -88,13 +88,10 @@ public class LocationUpdatesService extends Service {
         mServiceHandler = new Handler(handlerThread.getLooper());
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        // Android O requires a Notification Channel.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "GSTracker";
-            // Create the channel for the notification
+            CharSequence name = getString(R.string.app_name);
             NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT);
 
-            // Set the Notification Channel for the Notification Manager.
             mNotificationManager.createNotificationChannel(mChannel);
         }
     }
@@ -104,7 +101,6 @@ public class LocationUpdatesService extends Service {
         Log.i(TAG, "Service started");
         boolean startedFromNotification = intent.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION, false);
 
-        // We got here because the user decided to remove location updates from the notification.
         if (startedFromNotification) {
             removeLocationUpdates();
             stopSelf();
@@ -154,31 +150,17 @@ public class LocationUpdatesService extends Service {
     private Notification getNotification() {
         Intent intent = new Intent(this, LocationUpdatesService.class);
 
-        // CharSequence text = Utils.getLocationText(mLocation);
-
-        // Extra to help us figure out if we arrived in onStartCommand via the notification or not.
         intent.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true);
 
-        // The PendingIntent that leads to a call to onStartCommand() in this service.
-        // PendingIntent servicePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // The PendingIntent to launch activity.
-        // PendingIntent activityPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-//                .addAction(R.mipmap.ic_launch, "Open",
-//                        activityPendingIntent)
-//                .addAction(R.mipmap.ic_cancel, "Remove this service",
-//                        servicePendingIntent)
                 .setContentText(Utils.getLocationText(mLocation))
                 .setContentTitle("Legal, você está dirigindo!")
                 .setOngoing(true)
                 .setPriority(Notification.PRIORITY_HIGH)
-                .setSmallIcon(R.mipmap.icon)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 // .setTicker(text)
                 .setWhen(System.currentTimeMillis());
 
-        // Set the Channel ID for Android O.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder.setChannelId(CHANNEL_ID); // Channel ID
         }
@@ -241,9 +223,9 @@ public class LocationUpdatesService extends Service {
         mNotificationManager.notify(NOTIFICATION_ID, getNotification());
 
         ArrayList<Position> positions = Hawk.get(KEY_POSITIONS);
-        if( positions == null ) positions = new ArrayList<Position>();
+        if( positions == null ) positions = new ArrayList<>();
 
-        positions.add(new Position(new CompositePKPosition(Hawk.get(MainActivity.USER_ID), String.valueOf(Calendar.getInstance().getTimeInMillis())), location.getLatitude(), location.getLongitude()));
+        positions.add(new Position(new CompositePKPosition(2, String.valueOf(Calendar.getInstance().getTimeInMillis())), location.getLatitude(), location.getLongitude()));
 
         Hawk.put(KEY_POSITIONS, positions);
     }

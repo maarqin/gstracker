@@ -89,7 +89,7 @@ public class LocationUpdatesService extends Service {
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.app_name);
+            CharSequence name = "GSTracker";
             NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT);
 
             mNotificationManager.createNotificationChannel(mChannel);
@@ -157,7 +157,7 @@ public class LocationUpdatesService extends Service {
                 .setContentTitle("Legal, você está dirigindo!")
                 .setOngoing(true)
                 .setPriority(Notification.PRIORITY_HIGH)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.mipmap.icon)
                 // .setTicker(text)
                 .setWhen(System.currentTimeMillis());
 
@@ -225,8 +225,8 @@ public class LocationUpdatesService extends Service {
         ArrayList<Position> positions = Hawk.get(KEY_POSITIONS);
         if( positions == null ) positions = new ArrayList<>();
 
-        positions.add(new Position(new CompositePKPosition(2, String.valueOf(Calendar.getInstance().getTimeInMillis())), location.getLatitude(), location.getLongitude()));
-
+        positions.add(new Position(new CompositePKPosition(Hawk.get(MainActivity.USER_ID), String.valueOf(Calendar.getInstance().getTimeInMillis())), location.getLatitude(), location.getLongitude()));
+        
         Hawk.put(KEY_POSITIONS, positions);
     }
 

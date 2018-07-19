@@ -196,7 +196,7 @@ public class SensorActivityService extends Service {
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         ActivityRecognition.getClient(this).removeActivityUpdates(pendingIntent);
-        ActivityRecognition.getClient(this).requestActivityUpdates(100, pendingIntent);
+        ActivityRecognition.getClient(this).requestActivityUpdates(1000, pendingIntent);
     }
 
     /**
@@ -252,7 +252,7 @@ public class SensorActivityService extends Service {
                 .setContentTitle("Monitor de atividades")
                 .setOngoing(true)
                 .setPriority(Notification.PRIORITY_HIGH)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.mipmap.icon)
                 .setWhen(System.currentTimeMillis());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -17,6 +17,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import com.orhanobut.hawk.Hawk;
 
+import br.com.golsat.golfleetdriver.*;
+
 /**
  * Created by thomaz on 05/06/18.
  */
@@ -67,7 +69,7 @@ abstract class SuccessCallback<T> extends BaseCallBack<T> implements Callback<T>
                 context.stopService(new Intent(context, SensorActivityService.class));
                 context.stopService(new Intent(context, LocationUpdatesService.class));
 
-                Hawk.init(this).build();
+                Hawk.init(context).build();
 
                 Hawk.put(MainActivity.IS_CONNECTION_OK, false);
 

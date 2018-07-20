@@ -15,6 +15,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import com.orhanobut.hawk.Hawk;
+
 /**
  * Created by thomaz on 05/06/18.
  */
@@ -61,27 +63,18 @@ abstract class SuccessCallback<T> extends BaseCallBack<T> implements Callback<T>
                 onFailure(response);
                 break;
             case HttpURLConnection.HTTP_UNAUTHORIZED :
-                Toast.makeText(context, "Device ID Divergente", Toast.LENGTH_SHORT).show();
-
-                // clearAppData();
 
                 context.stopService(new Intent(context, SensorActivityService.class));
                 context.stopService(new Intent(context, LocationUpdatesService.class));
+
+                Hawk.init(this).build();
+
+                Hawk.put(MainActivity.IS_CONNECTION_OK, false);
 
                 System.exit(0);
                 break;
         }
 
-    }
-
-    private void clearAppData() {
-        try {
-            String packageName = context.getPackageName();
-            Runtime runtime = Runtime.getRuntime();
-            runtime.exec("pm clear "+packageName);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

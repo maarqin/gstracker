@@ -12,6 +12,8 @@ import org.json.JSONObject;
 
 import br.com.golsat.golfleetdriver.*;
 
+import com.orhanobut.hawk.Hawk;
+
 public class GSTracker extends CordovaPlugin {
 
     @Override
@@ -20,32 +22,45 @@ public class GSTracker extends CordovaPlugin {
 
         MainActivity mainActivity = ((MainActivity) cordova.getActivity());
 
-        if ( action.equals("run") || action.equals("exit") ) {
-
-            if( action.equals("run") ) {
+        PluginResult pluginResult = null;
+        boolean ret = true;
+        switch( action ) {
+            case "run" :
                 try {
                     mainActivity.run(args.getJSONObject(0));
                 } catch (JSONException e) {
                     callbackContext.error("Error encountered: " + e.getMessage());
                     return false;
                 }
-                    
-            } else {
+                pluginResult = new PluginResult(PluginResult.Status.OK);
+
+                break;
+            case "exit" :
                 mainActivity.exit();
-            }
 
-            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-            callbackContext.sendPluginResult(pluginResult);
+                pluginResult = new PluginResult(PluginResult.Status.OK);
+                
+                break;
 
-            return true;
-        } else {
-            callbackContext.error("\"" + action + "\" is not a recognized action.");
+            case "confirmConnectionUserStatus" :
+                Hawk.init(this).build();
+    
+                boolean status = Hawk.get(MainActivity.IS_CONNECTION_OK);
+                pluginResult = new PluginResult((status) ? PluginResult.Status.OK :  PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
 
-            PluginResult pluginResult = new PluginResult(PluginResult.Status.INVALID_ACTION);
-            callbackContext.sendPluginResult(pluginResult);
+                break;
+            default :
+                callbackContext.error("\"" + action + "\" is not a recognized action.");
 
-            return false;
+                pluginResult = new PluginResult(PluginResult.Status.INVALID_ACTION);
+
+                ret = false;
+                
         }
+
+        callbackContext.sendPluginResult(pluginResult);
+
+        return ret;
 
     }
 

@@ -41,7 +41,8 @@ function insertOnCreate(acc, line) {
 function gsTrackMethods(acc, line) {
   return `${acc}
   ${line}
-
+  
+      static public final String IS_CONNECTION_OK = "IS_CONNECTION_OK";
       static public final String USER_ID = "USER_ID";
       static public final String USER_EMAIL = "USER_EMAIL";
       static public final String USER_DEVICE_ID = "USER_DEVICE_ID";
@@ -103,6 +104,8 @@ function gsTrackMethods(acc, line) {
           Hawk.put(USER_ID, userId);
           Hawk.put(USER_EMAIL, userEmail);
           Hawk.put(USER_DEVICE_ID, userDeviceId);
+
+          Hawk.put(IS_CONNECTION_OK, true);
 
         } catch (JSONException e) {
             e.printStackTrace();

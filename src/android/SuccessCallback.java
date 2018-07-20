@@ -63,7 +63,7 @@ abstract class SuccessCallback<T> extends BaseCallBack<T> implements Callback<T>
             case HttpURLConnection.HTTP_UNAUTHORIZED :
                 Toast.makeText(context, "Device ID Divergente", Toast.LENGTH_SHORT).show();
 
-                clearAppData();
+                // clearAppData();
 
                 context.stopService(new Intent(context, SensorActivityService.class));
                 context.stopService(new Intent(context, LocationUpdatesService.class));

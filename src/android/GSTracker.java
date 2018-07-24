@@ -22,7 +22,7 @@ public class GSTracker extends CordovaPlugin {
 
         MainActivity mainActivity = ((MainActivity) cordova.getActivity());
 
-        PluginResult pluginResult = null;
+        PluginResult pluginResult;
         boolean ret = true;
         switch( action ) {
             case "run" :

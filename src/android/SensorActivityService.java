@@ -11,7 +11,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -24,13 +23,13 @@ import android.widget.Toast;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
+
 import com.orhanobut.hawk.Hawk;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 
 import com.gstracker.cordova.plugin.Position;
 import com.gstracker.cordova.plugin.BasePositioningApi;
@@ -39,49 +38,24 @@ import br.com.golsat.golfleetdriver.*;
 import retrofit2.Response;
 
 
-public class SensorActivityService extends Service {
+public class SensorActivityService extends Service implements ServiceConnection {
 
     public int counter = 0;
-    private final IBinder mBinder = new LocalBinder();
 
     private static final String PACKAGE_NAME = "com.google.android.gms.location.sample.sensoractivityforegroundservice";
     private final String TAG = SensorActivityService.class.getSimpleName();
     private static final String CHANNEL_ID = "channel_01";
     public static final String ACTION_BROADCAST = PACKAGE_NAME + ".broadcast";
     public static final String EXTRA_ACTIVITY = PACKAGE_NAME + ".location";
-    private static final String EXTRA_STARTED_FROM_NOTIFICATION = PACKAGE_NAME + ".started_from_notification";
 
     private static final int NOTIFICATION_ID = 87654321;
 
-    private boolean mChangingConfiguration = false;
     private NotificationManager mNotificationManager;
     private Handler mServiceHandler;
 
-    private LocationUpdatesService.MyReceiver myReceiver;
-
     private LocationUpdatesService mService = null;
 
-    private boolean mBound = false;
-
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
-            mService = binder.getService();
-
-            mService.requestLocationUpdates();
-
-            mBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mService = null;
-            mBound = false;
-        }
-    };
-
+    public PendingIntent pendingIntent;
 
     @Override
     public void onCreate() {
@@ -90,8 +64,9 @@ public class SensorActivityService extends Service {
         HandlerThread handlerThread = new HandlerThread(TAG);
         handlerThread.start();
         mServiceHandler = new Handler(handlerThread.getLooper());
+
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        myReceiver = new LocationUpdatesService.MyReceiver();
+        // myReceiver = new LocationUpdatesService.MyReceiver();
 
         // Android O requires a Notification Channel.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -102,62 +77,50 @@ public class SensorActivityService extends Service {
             // Set the Notification Channel for the Notification Manager.
             mNotificationManager.createNotificationChannel(mChannel);
         }
+
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(final Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+
         startTimer();
+
         if(ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
             handleDetectedActivities( result.getProbableActivities() );
+        } else {
+            final int SPLASH_DISPLAY_LENGTH = 5000;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    requestActivityUpdates(intent);
+
+                    startForeground(NOTIFICATION_ID, getNotification());
+                }
+            }, SPLASH_DISPLAY_LENGTH);
         }
 
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("EXIT", "ondestroy!");
+
+        ActivityRecognition.getClient(this).removeActivityUpdates(pendingIntent);
+
+        Log.i("Exit", "OnDestroy!");
         mServiceHandler.removeCallbacksAndMessages(null);
-        if (mBound) {
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
+        stopTaskTimer();
 
-
-        Intent broadcastIntent = new Intent("br.com.golsat.pocservice.RestartSensor");
-        sendBroadcast(broadcastIntent);
-        stoptimertask();
+        stopForeground(true);
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-
         stopForeground(true);
-        mChangingConfiguration = false;
-        return mBinder;
-    }
-
-    @Override
-    public void onRebind(Intent intent) {
-
-        stopForeground(true);
-        mChangingConfiguration = false;
-        super.onRebind(intent);
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-        Log.i("TAG", "Last client unbound from service");
-
-        if (!mChangingConfiguration) {
-            Log.i("TAG", "Starting foreground service");
-
-            startForeground(NOTIFICATION_ID, getNotification());
-        }
-        return true;
+        return null;
     }
 
     private Timer timer;
@@ -182,7 +145,7 @@ public class SensorActivityService extends Service {
         };
     }
 
-    public void stoptimertask() {
+    public void stopTaskTimer() {
         if (timer != null) {
             timer.cancel();
             timer = null;
@@ -190,45 +153,33 @@ public class SensorActivityService extends Service {
     }
 
     /**
-     * @param intent Intent
+     * @param intent {@link Intent}
      */
     public void requestActivityUpdates(Intent intent) {
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         ActivityRecognition.getClient(this).removeActivityUpdates(pendingIntent);
-        ActivityRecognition.getClient(this).requestActivityUpdates(1000, pendingIntent);
+        ActivityRecognition.getClient(this).requestActivityUpdates(100, pendingIntent);
     }
 
     /**
-     * @param intent Intent
-     */
-    public PendingIntent removeActivityUpdates(Intent intent) {
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        ActivityRecognition.getClient(this).removeActivityUpdates(pendingIntent);
-
-        return pendingIntent;
-    }
-
-    /**
-     * @param probableActivities
+     * @param probableActivities {@link List<DetectedActivity>}
      */
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
         for( DetectedActivity activity : probableActivities ) {
             System.out.println("activity = " + activity);
 
             if( activity.getType() == DetectedActivity.WALKING && activity.getConfidence() >= 75 ) {
-
                 onNewActivity(activity);
-
             } else if( (activity.getType() == DetectedActivity.STILL && activity.getConfidence() >= 75) /*||
                     (activity.getType() == DetectedActivity.WALKING && activity.getConfidence() >= 75)*/) {
 
-
-                if(  mService != null && mService.mBound ) {
+                if( mService != null && mService.mBound ) {
                     mService.removeLocationUpdates();
 
-                    unbindService(mServiceConnection);
+                    unbindService(this);
+
+                    stopSelf();
                 }
 
                 Hawk.init(this).build();
@@ -238,7 +189,7 @@ public class SensorActivityService extends Service {
                 String email = Hawk.get(MainActivity.USER_EMAIL);
                 String deviceId = Hawk.get(MainActivity.USER_DEVICE_ID);
 
-                // Save registered data
+                // Save registered data from user
                 if( positions != null ) {
                     new BasePositioningApi.Create(getApplicationContext(), email, deviceId, positions) {
                         @Override
@@ -254,16 +205,15 @@ public class SensorActivityService extends Service {
         }
     }
 
+    /**
+     * @return Notification
+     */
     private Notification getNotification() {
-        Intent intent = new Intent(this, SensorActivityService.class);
-
-        intent.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true);
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setContentTitle("Monitor de atividades")
                 .setOngoing(true)
                 .setPriority(Notification.PRIORITY_HIGH)
-                .setSmallIcon(R.mipmap.icon)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setWhen(System.currentTimeMillis());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -274,7 +224,7 @@ public class SensorActivityService extends Service {
     }
 
     /**
-     * @param activity
+     * @param activity {@link DetectedActivity}
      */
     private void onNewActivity(DetectedActivity activity) {
         Log.i(TAG, "New activity: " + activity);
@@ -284,7 +234,7 @@ public class SensorActivityService extends Service {
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
 
         if( mService == null || !mService.mBound ) {
-            bindService(new Intent(this, LocationUpdatesService.class), mServiceConnection, Context.BIND_AUTO_CREATE);
+            bindService(new Intent(this, LocationUpdatesService.class), this, Context.BIND_AUTO_CREATE);
         }
 
         if (serviceIsRunningInForeground(this)) {
@@ -293,8 +243,8 @@ public class SensorActivityService extends Service {
     }
 
     /**
-     * @param context
-     * @return
+     * @param context {@link Context}
+     * @return boolean
      */
     public boolean serviceIsRunningInForeground(Context context) {
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
@@ -309,10 +259,16 @@ public class SensorActivityService extends Service {
         return false;
     }
 
-    public class LocalBinder extends Binder {
-        public SensorActivityService getService() {
-            return SensorActivityService.this;
-        }
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
+        mService = binder.getService();
+        mService.requestLocationUpdates();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        mService = null;
     }
 
     public static class MyReceiver extends BroadcastReceiver {

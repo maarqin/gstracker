@@ -65,15 +65,10 @@ abstract class SuccessCallback<T> extends BaseCallBack<T> implements Callback<T>
                 onFailure(response);
                 break;
             case HttpURLConnection.HTTP_UNAUTHORIZED :
-
-                context.stopService(new Intent(context, SensorActivityService.class));
-                context.stopService(new Intent(context, LocationUpdatesService.class));
-
                 Hawk.init(context).build();
 
                 Hawk.put(MainActivity.IS_CONNECTION_OK, false);
 
-                System.exit(0);
                 break;
         }
 

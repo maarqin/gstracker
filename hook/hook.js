@@ -7,20 +7,13 @@ function writeImports(acc, line) {
   return `//gstrack modified
   ${acc}
   ${line}
-  import android.Manifest;
-  import android.content.ComponentName;
-  import android.content.Context;
   import android.content.Intent;
-  import android.content.IntentFilter;
-  import android.content.ServiceConnection;
-  import android.os.IBinder;
-  import android.support.v4.content.LocalBroadcastManager;
-  import com.gstracker.cordova.plugin.SensorActivityService;
-  import com.gstracker.cordova.plugin.SupportPermissions;
+  import android.os.Bundle;
+  import android.support.v7.app.AppCompatActivity;
   import com.orhanobut.hawk.Hawk;
   
-  import android.os.Bundle;
   import org.apache.cordova.*;
+
   import org.json.JSONException;
   import org.json.JSONObject;`;
 }
@@ -29,8 +22,10 @@ function insertOnCreate(acc, line) {
   return `${acc}
   ${line}
           Hawk.init(this).build();
-          myReceiver = new SensorActivityService.MyReceiver();
+
           intent = new Intent(this, SensorActivityService.class);
+          startService(intent);
+  
           SupportPermissions permissions = new SupportPermissions();
           permissions.requestForPermission(this,
                   Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -46,52 +41,8 @@ function gsTrackMethods(acc, line) {
       static public final String USER_ID = "USER_ID";
       static public final String USER_EMAIL = "USER_EMAIL";
       static public final String USER_DEVICE_ID = "USER_DEVICE_ID";
-      private SensorActivityService.MyReceiver myReceiver;
-      public SensorActivityService mSensor = null;
-      private boolean mBound = false;
+
       private Intent intent;
-  
-      private final ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-          SensorActivityService.LocalBinder binder = (SensorActivityService.LocalBinder) service;
-          mSensor = binder.getService();
-          mBound = true;
-        }
-  
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-          mSensor = null;
-          mBound = false;
-        }
-      };
-  
-      @Override
-      protected void onStart() {
-        super.onStart();
-        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-      }
-  
-      @Override
-      protected void onResume() {
-        super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver, new IntentFilter(SensorActivityService.ACTION_BROADCAST));
-      }
-  
-      @Override
-      protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
-        super.onPause();
-      }
-  
-      @Override
-      protected void onStop() {
-        if (mBound) {
-          unbindService(mServiceConnection);
-          mBound = false;
-        }
-        super.onStop();
-      }
   
       public void run(JSONObject options) {
 
@@ -111,17 +62,13 @@ function gsTrackMethods(acc, line) {
             e.printStackTrace();
         }
 
-        mSensor.requestActivityUpdates(intent);
       }
   
       public void exit() {
         mSensor.removeActivityUpdates(intent);
         stopService(intent);
       }
-      
-      public CordovaWebView getCordovaWebView() {
-        return appView;
-      }`;
+      `;
 }
 
 module.exports = ctx => {

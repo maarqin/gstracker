@@ -4,21 +4,27 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+
 import android.location.Location;
+
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
+
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+
 import android.util.Log;
+
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -26,8 +32,10 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
 import com.orhanobut.hawk.Hawk;
 
 import java.util.ArrayList;
@@ -89,7 +97,7 @@ public class LocationUpdatesService extends Service {
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "GSTracker";
+            CharSequence name = getString(R.string.app_name);
             NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT);
 
             mNotificationManager.createNotificationChannel(mChannel);
@@ -116,8 +124,6 @@ public class LocationUpdatesService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-
-        Log.i(TAG, "in onBind()");
         stopForeground(true);
         mChangingConfiguration = false;
         return mBinder;
@@ -148,17 +154,12 @@ public class LocationUpdatesService extends Service {
     }
 
     private Notification getNotification() {
-        Intent intent = new Intent(this, LocationUpdatesService.class);
-
-        intent.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true);
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setContentText(Utils.getLocationText(mLocation))
                 .setContentTitle("Legal, você está dirigindo!")
                 .setOngoing(true)
                 .setPriority(Notification.PRIORITY_HIGH)
-                .setSmallIcon(R.mipmap.icon)
-                // .setTicker(text)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setWhen(System.currentTimeMillis());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -175,7 +176,7 @@ public class LocationUpdatesService extends Service {
         try {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         } catch (SecurityException unlikely) {
-            Log.e(TAG, "Lost location permission. Could not request updates. " + unlikely);
+            Log.e(TAG, "Lost location permission. Could not request updates." + unlikely);
         }
     }
 
@@ -225,8 +226,8 @@ public class LocationUpdatesService extends Service {
         ArrayList<Position> positions = Hawk.get(KEY_POSITIONS);
         if( positions == null ) positions = new ArrayList<>();
 
-        positions.add(new Position(new CompositePKPosition(Hawk.get(MainActivity.USER_ID), String.valueOf(Calendar.getInstance().getTimeInMillis())), location.getLatitude(), location.getLongitude()));
-        
+        positions.add(new Position(new CompositePKPosition(2, String.valueOf(Calendar.getInstance().getTimeInMillis())), location.getLatitude(), location.getLongitude()));
+
         Hawk.put(KEY_POSITIONS, positions);
     }
 

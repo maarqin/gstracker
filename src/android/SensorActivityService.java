@@ -178,8 +178,6 @@ public class SensorActivityService extends Service implements ServiceConnection 
                     mService.removeLocationUpdates();
 
                     unbindService(this);
-
-                    stopSelf();
                 }
 
                 Hawk.init(this).build();

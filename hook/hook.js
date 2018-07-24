@@ -10,11 +10,8 @@ function writeImports(acc, line) {
 
   import android.Manifest;
   import android.content.Intent;
-  import android.os.Bundle;
   import com.orhanobut.hawk.Hawk;
   
-  import org.apache.cordova.*;
-
   import org.json.JSONException;
   import org.json.JSONObject;
   
@@ -42,8 +39,6 @@ function gsTrackMethods(acc, line) {
       static public final String USER_ID = "USER_ID";
       static public final String USER_EMAIL = "USER_EMAIL";
       static public final String USER_DEVICE_ID = "USER_DEVICE_ID";
-
-      private Intent intent;
   
       public void run(JSONObject options) {
 
@@ -59,17 +54,16 @@ function gsTrackMethods(acc, line) {
 
           Hawk.put(IS_CONNECTION_OK, true);
 
-          intent = new Intent(this, SensorActivityService.class);
-          startService(intent);
+          startService(new Intent(this, SensorActivityService.class));
 
-        } catch (JSONException e) {
+        } catch (JSONException e) { 
             e.printStackTrace();
         }
 
       }
   
       public void exit() {
-        stopService(intent);
+        stopService(new Intent(this, SensorActivityService.class));
       }
       `;
 }

@@ -18,8 +18,8 @@ function writeImports(acc, line) {
   import org.json.JSONException;
   import org.json.JSONObject;
   
-  import com.gstracker.cordova.plugin.*;
-  `;
+  import com.gstracker.cordova.plugin.*;`;
+
 }
   
 function insertOnCreate(acc, line) {
@@ -27,9 +27,6 @@ function insertOnCreate(acc, line) {
   ${line}
           Hawk.init(this).build();
 
-          intent = new Intent(this, SensorActivityService.class);
-          startService(intent);
-  
           SupportPermissions permissions = new SupportPermissions();
           permissions.requestForPermission(this,
                   Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -61,6 +58,9 @@ function gsTrackMethods(acc, line) {
           Hawk.put(USER_DEVICE_ID, userDeviceId);
 
           Hawk.put(IS_CONNECTION_OK, true);
+
+          intent = new Intent(this, SensorActivityService.class);
+          startService(intent);
 
         } catch (JSONException e) {
             e.printStackTrace();

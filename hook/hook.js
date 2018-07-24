@@ -7,15 +7,19 @@ function writeImports(acc, line) {
   return `//gstrack modified
   ${acc}
   ${line}
+
+  import android.Manifest;
   import android.content.Intent;
   import android.os.Bundle;
-  import android.support.v7.app.AppCompatActivity;
   import com.orhanobut.hawk.Hawk;
   
   import org.apache.cordova.*;
 
   import org.json.JSONException;
-  import org.json.JSONObject;`;
+  import org.json.JSONObject;
+  
+  import com.gstracker.cordova.plugin.*;
+  `;
 }
   
 function insertOnCreate(acc, line) {
@@ -65,7 +69,6 @@ function gsTrackMethods(acc, line) {
       }
   
       public void exit() {
-        mSensor.removeActivityUpdates(intent);
         stopService(intent);
       }
       `;

@@ -44,10 +44,13 @@ public class GSTracker extends CordovaPlugin {
 
             case "statusConnection" :
                 Hawk.init(mainActivity).build();
-    
-                boolean status = Hawk.get(MainActivity.IS_CONNECTION_OK);
-                pluginResult = new PluginResult((status) ? PluginResult.Status.OK :  PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
 
+                Boolean status = Hawk.get(MainActivity.IS_CONNECTION_OK);
+                if( status == null ) {
+                    pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+                } else {
+                    pluginResult = new PluginResult((status) ? PluginResult.Status.OK :  PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+                }
                 break;
             default :
                 callbackContext.error("\"" + action + "\" is not a recognized action.");

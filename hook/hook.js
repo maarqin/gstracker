@@ -63,6 +63,7 @@ function gsTrackMethods(acc, line) {
       }
   
       public void exit() {
+        Hawk.put(IS_CONNECTION_OK, null);
         stopService(new Intent(this, SensorActivityService.class));
       }
       `;

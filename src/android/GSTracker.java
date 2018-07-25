@@ -46,15 +46,12 @@ public class GSTracker extends CordovaPlugin {
                 Hawk.init(mainActivity).build();
 
                 Boolean status = Hawk.get(MainActivity.IS_CONNECTION_OK);
-                if( status == null ) {
-                    pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+
+                if( status == null || status ) {
+                    pluginResult = new PluginResult(PluginResult.Status.OK);
                 } else {
-                    if( status ) {
-                        pluginResult = new PluginResult(PluginResult.Status.OK);
-                    } else {
-                        pluginResult = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
-                        Hawk.deleteAll();
-                    }
+                    pluginResult = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+                    Hawk.deleteAll();
                 }
                 break;
             default :

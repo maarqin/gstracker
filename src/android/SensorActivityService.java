@@ -169,10 +169,10 @@ public class SensorActivityService extends Service implements ServiceConnection 
         for( DetectedActivity activity : probableActivities ) {
             System.out.println("activity = " + activity);
 
-            if( activity.getType() == DetectedActivity.WALKING && activity.getConfidence() >= 75 ) {
+            if( activity.getType() == DetectedActivity.IN_VEHICLE && activity.getConfidence() >= 75 ) {
                 onNewActivity(activity);
-            } else if( (activity.getType() == DetectedActivity.STILL && activity.getConfidence() >= 75) /*||
-                    (activity.getType() == DetectedActivity.WALKING && activity.getConfidence() >= 75)*/) {
+            } else if( (activity.getType() == DetectedActivity.STILL && activity.getConfidence() >= 75) ||
+                    (activity.getType() == DetectedActivity.WALKING && activity.getConfidence() >= 75)) {
 
                 if( mService != null && mService.mBound ) {
                     mService.removeLocationUpdates();

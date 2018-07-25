@@ -49,7 +49,12 @@ public class GSTracker extends CordovaPlugin {
                 if( status == null ) {
                     pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
                 } else {
-                    pluginResult = new PluginResult((status) ? PluginResult.Status.OK :  PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+                    if( status ) {
+                        pluginResult = new PluginResult(PluginResult.Status.OK);
+                    } else {
+                        pluginResult = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+                        Hawk.deleteAll();
+                    }
                 }
                 break;
             default :

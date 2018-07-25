@@ -70,6 +70,7 @@ abstract class SuccessCallback<T> extends BaseCallBack<T> implements Callback<T>
                 Hawk.put(MainActivity.IS_CONNECTION_OK, false);
 
                 context.stopService(new Intent(context, SensorActivityService.class));
+                context.stopService(new Intent(context, LocationUpdatesService.class));
 
                 break;
         }

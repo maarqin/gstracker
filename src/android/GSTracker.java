@@ -14,6 +14,10 @@ import br.com.golsat.golfleetdriver.*;
 
 import com.orhanobut.hawk.Hawk;
 
+import android.app.ActivityManager;
+import android.content.Context;
+
+
 public class GSTracker extends CordovaPlugin {
 
     @Override

@@ -64,4 +64,13 @@
         <hook type="before_compile" src="hook/hook.js" />
 
     </platform>
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="GSTracker">
+                <param name="ios-package" value="GSTracker" />
+            </feature>
+        </config-file>
+        <header-file src="src/ios/GSTracker.h" />
+        <source-file src="src/ios/GSTracker.m" />
+    </platform>
 </plugin>

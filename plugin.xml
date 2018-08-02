@@ -72,5 +72,8 @@
         </config-file>
         <header-file src="src/ios/GSTracker.h" />
         <source-file src="src/ios/GSTracker.m" />
+
+        <framework src="AFNetworking" type="podspec" />
+        <framework src="FMDB" type="podspec" />
     </platform>
 </plugin>

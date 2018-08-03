@@ -65,6 +65,29 @@
 
     </platform>
     <platform name="ios">
+        <config-file target="*-Info.plist" parent="NSLocationAlwaysAndWhenInUseUsageDescription">
+            <string>Please enable location services to allow the app to track in the background</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
+            <string>Please enable location services to allow the app to track in the background</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
+            <string>Please enable location services to allow the app to track</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="NSMotionUsageDescription">
+            <string>Please enable motion to allow step counting</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="UIBackgroundModes">
+            <array>
+                <string>fetch</string>
+		        <string>location</string>
+            </array>
+        </config-file>
+
         <config-file target="config.xml" parent="/*">
             <feature name="GSTracker">
                 <param name="ios-package" value="GSTracker" />
@@ -76,6 +99,13 @@
         <source-file src="src/ios/GLManager.m" />
         <header-file src="src/ios/LOLDatabase.h" />
         <source-file src="src/ios/LOLDatabase.m" />
+
+        <framework src="UIKit.framework" />
+        <framework src="CoreMotion.framework" />
+        <framework src="CoreLocation.framework" />
+        <framework src="ExternalAccessory.framework" />
+        <framework src="UserNotification.framework" />
+        <framework src="SystemConfiguration.framework" />
 
         <framework src="AFNetworking" type="podspec" spec="~> 3.0" />
         <framework src="FMDB" type="podspec" spec="~> 2.7" />

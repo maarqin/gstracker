@@ -1,5 +1,5 @@
 function replaceAppDelegate(acc, line) {
-  return `
+  return`
   //gstrack modified
   /*
   Licensed to the Apache Software Foundation (ASF) under one
@@ -23,7 +23,7 @@ function replaceAppDelegate(acc, line) {
  #import "AppDelegate.h"
  #import "MainViewController.h"
  #import "AppDelegate.h"
- #import "Plugins/cordova-plugin-gstracker/GLManager.h"
+ #import "GLManager.h"
  
  @implementation AppDelegate
  

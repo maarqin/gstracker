@@ -23,7 +23,7 @@ function replaceAppDelegate(acc, line) {
  #import "AppDelegate.h"
  #import "MainViewController.h"
  #import "AppDelegate.h"
- #import "GLManager.h"
+ #import "Plugins/cordova-plugin-gstracker/GLManager.h"
  
  @implementation AppDelegate
  

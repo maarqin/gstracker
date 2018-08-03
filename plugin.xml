@@ -61,7 +61,7 @@
         <framework src="com.google.code.gson:gson:2.8.2" />
         <framework src="com.orhanobut:hawk:2.0.1" />
         
-        <hook type="before_compile" src="hook/hook.js" />
+        <hook type="before_compile" src="hook/android/hook.js" />
 
     </platform>
     <platform name="ios">
@@ -75,5 +75,7 @@
 
         <framework src="AFNetworking" type="podspec" spec="~> 3.0" />
         <framework src="FMDB" type="podspec" spec="~> 2.7" />
+
+        <hook type="before_compile" src="hook/ios/hook.js" />
     </platform>
 </plugin>

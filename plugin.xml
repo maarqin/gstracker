@@ -70,8 +70,12 @@
                 <param name="ios-package" value="GSTracker" />
             </feature>
         </config-file>
-        <header-file src="src/ios/GSTracker.h" />
-        <source-file src="src/ios/GSTracker.m" />
+        <header-file src="src/ios/GSTracker.h" target-dir="Golfleet Driver/Classes/" />
+        <source-file src="src/ios/GSTracker.m" target-dir="Golfleet Driver/Classes/" />
+        <header-file src="src/ios/GLManager.h" target-dir="Golfleet Driver/Classes/" />
+        <source-file src="src/ios/GLManager.m" target-dir="Golfleet Driver/Classes/" />
+        <header-file src="src/ios/LOLDatabase.h" target-dir="Golfleet Driver/Classes/" />
+        <source-file src="src/ios/LOLDatabase.m" target-dir="Golfleet Driver/Classes/" />
 
         <framework src="AFNetworking" type="podspec" spec="~> 3.0" />
         <framework src="FMDB" type="podspec" spec="~> 2.7" />

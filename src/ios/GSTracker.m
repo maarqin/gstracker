@@ -26,9 +26,9 @@
             break;
     }
 
-    if (msg == nil || [msg length] == 0) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-    } else {
+    // if (msg == nil || [msg length] == 0) {
+        // pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    // } else {
         // /* http://stackoverflow.com/questions/18680891/displaying-a-message-in-ios-which-has-the-same-functionality-as-toast-in-android */
         // UIAlertView *toast = [
         //     [UIAlertView alloc] initWithTitle:@""
@@ -44,7 +44,7 @@
         // });
         
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    }
+    // }
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }

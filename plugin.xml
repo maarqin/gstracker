@@ -104,7 +104,7 @@
         <framework src="CoreMotion.framework" />
         <framework src="CoreLocation.framework" />
         <framework src="ExternalAccessory.framework" />
-        <framework src="UserNotification.framework" />
+        <framework src="UserNotifications.framework" />
         <framework src="SystemConfiguration.framework" />
 
         <framework src="AFNetworking" type="podspec" spec="~> 3.0" />

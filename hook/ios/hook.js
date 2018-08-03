@@ -1,5 +1,5 @@
 function replaceAppDelegate(acc, line) {
-  `
+  return `
   //gstrack modified
   /*
   Licensed to the Apache Software Foundation (ASF) under one

@@ -2,51 +2,74 @@
 
 #import "GSTracker.h"
 #import <Cordova/CDV.h>
+#import "GLManager.h"
+#import "MainViewController.h"
 
 @implementation GSTracker
 
-- (void)echo:(CDVInvokedUrlCommand*)command
-{
+-(void) statusConnection: (CDVInvokedUrlCommand*) command {
     CDVPluginResult* pluginResult = nil;
-    NSString* action = [command.arguments objectAtIndex:0];
-
-    NSArray *items = @[@"run", @"exit", @"statusConnection"];
-
-    int item = [items indexOfObject:action];
-    switch (item) {
-        case 0: // run
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-            break;
-        case 1: // exit
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-            break;
-        case 2: // statusConnection
-            default :
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-            break;
+    
+    NSString *status = [[NSUserDefaults standardUserDefaults] valueForKey:IS_CONNECTION_OK];
+    
+    if( status != nil ){
+        if( [status isEqualToString:@"NOTHING"] || [status isEqualToString:@"AVAILABLE"] ) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"OK"];
+        } else if( [status isEqualToString:@"UNAVAILABLE"] ) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ILLEGAL_ACCESS_EXCEPTION messageAsString:@"Illegal access"];
+            
+            // [[GLManager sharedManager] clearTripDB];
+            
+            //            NSUserDefaults * defs = [NSUserDefaults standardUserDefaults];
+            //            NSDictionary * dict = [defs dictionaryRepresentation];
+            //            for (id key in dict) {
+            //                [defs removeObjectForKey:key];
+            //            }
+            //            [defs synchronize];
+        }
     }
-
-    // if (msg == nil || [msg length] == 0) {
-        // pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-    // } else {
-        // /* http://stackoverflow.com/questions/18680891/displaying-a-message-in-ios-which-has-the-same-functionality-as-toast-in-android */
-        // UIAlertView *toast = [
-        //     [UIAlertView alloc] initWithTitle:@""
-        //     message:msg
-        //     delegate:nil
-        //     cancelButtonTitle:nil
-        //     otherButtonTitles:nil, nil];
-
-        // [toast show];
-        
-        // dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        //     [toast dismissWithClickedButtonIndex:0 animated:YES];
-        // });
-        
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    // }
-
+    
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+-(void) run: (CDVInvokedUrlCommand*) command {
+    [[NSUserDefaults standardUserDefaults] setBool:[GLManager sharedManager].trackingEnabled forKey:GLTrackingStateDefaultsName];
+    
+    [[GLManager sharedManager] saveNewAPIEndpoint:@"http://driver-ws.golsat.com.br:6001/driver-positioning"];
+    
+    // Custom configuration
+    [GLManager sharedManager].significantLocationMode = kGLSignificantLocationEnabled;
+    [GLManager sharedManager].activityType = CLActivityTypeAutomotiveNavigation;
+    [GLManager sharedManager].desiredAccuracy = kCLLocationAccuracyBest;
+    [GLManager sharedManager].pointsPerBatch = 200; // pacote com 200 pontos
+    [GLManager sharedManager].pausesAutomatically = NO;
+    [[GLManager sharedManager] setSendingInterval:[NSNumber numberWithInteger:60]]; // enviar a cada 1 minuto
+    [[GLManager sharedManager] setDefersLocationUpdates:100];
+    
+    [[GLManager sharedManager] startAllUpdates];
+    [[GLManager sharedManager] startTrip];
+    
+    MainViewController *mainView = (MainViewController *)[self viewController];
+    
+    NSDictionary *dic = [[command arguments] objectAtIndex:0];
+    
+    [mainView run:dic];
+    
+    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
+}
+
+-(void) exit:(CDVInvokedUrlCommand*) command {
+    if( [[GLManager sharedManager] trackingEnabled] ) {
+        [[GLManager sharedManager] stopAllUpdates];
+        [[GLManager sharedManager] endTrip];
+    }
+    
+    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
+}
+
+- (void)echo:(CDVInvokedUrlCommand*) command
+{
+    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
 }
 
 @end

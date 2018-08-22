@@ -219,7 +219,7 @@
         size_t size = sqlite3_column_bytes(enumerateStatement, 1);
         fullData = [[NSData alloc] initWithBytes:dataPtr length:size];
         
-        NSDictionary *object = fullData ? _d.deserializer(fullData) : nil;	
+        NSDictionary *object = fullData ? _d.deserializer(fullData) : nil;
         
         stop = block(key, object);
         status = sqlite3_step(enumerateStatement);

@@ -17,15 +17,6 @@
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"OK"];
         } else if( [status isEqualToString:@"UNAVAILABLE"] ) {
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ILLEGAL_ACCESS_EXCEPTION messageAsString:@"Illegal access"];
-            
-            // [[GLManager sharedManager] clearTripDB];
-            
-            //            NSUserDefaults * defs = [NSUserDefaults standardUserDefaults];
-            //            NSDictionary * dict = [defs dictionaryRepresentation];
-            //            for (id key in dict) {
-            //                [defs removeObjectForKey:key];
-            //            }
-            //            [defs synchronize];
         }
     }
     
@@ -40,11 +31,10 @@
     // Custom configuration
     [GLManager sharedManager].significantLocationMode = kGLSignificantLocationEnabled;
     [GLManager sharedManager].activityType = CLActivityTypeAutomotiveNavigation;
-    [GLManager sharedManager].desiredAccuracy = kCLLocationAccuracyBest;
-    [GLManager sharedManager].pointsPerBatch = 200; // pacote com 200 pontos
+    [GLManager sharedManager].desiredAccuracy = kCLLocationAccuracyHundredMeters;
     [GLManager sharedManager].pausesAutomatically = NO;
-    [[GLManager sharedManager] setSendingInterval:[NSNumber numberWithInteger:60]]; // enviar a cada 1 minuto
-    [[GLManager sharedManager] setDefersLocationUpdates:100];
+    [[GLManager sharedManager] setSendingInterval:[NSNumber numberWithInteger:200]];
+    [[GLManager sharedManager] setDefersLocationUpdates:300];
     
     [[GLManager sharedManager] startAllUpdates];
     [[GLManager sharedManager] startTrip];

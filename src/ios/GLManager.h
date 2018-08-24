@@ -27,7 +27,7 @@ static NSString *const GLActivityTypeDefaultsName = @"GLActivityTypeDefaults";
 static NSString *const GLDesiredAccuracyDefaultsName = @"GLDesiredAccuracyDefaults";
 static NSString *const GLDefersLocationUpdatesDefaultsName = @"GLDefersLocationUpdatesDefaults";
 static NSString *const GLSignificantLocationModeDefaultsName = @"GLSignificantLocationModeDefaults";
-static NSString *const GLPointsPerBatchDefaultsName = @"GLPointsPerBatchDefaults";
+
 static NSString *const GLNotificationPermissionRequestedDefaultsName = @"GLNotificationPermissionRequestedDefaults";
 static NSString *const GLNotificationsEnabledDefaultsName = @"GLNotificationsEnabledDefaults";
 
@@ -69,7 +69,6 @@ typedef enum {
 @property (nonatomic) CLActivityType activityType;
 @property (nonatomic) CLLocationAccuracy desiredAccuracy;
 @property (nonatomic) CLLocationDistance defersLocationUpdates;
-@property (nonatomic) int pointsPerBatch;
 
 @property (readonly) BOOL trackingEnabled;
 @property (readonly) BOOL sendInProgress;
@@ -85,12 +84,10 @@ typedef enum {
 - (void)refreshLocation;
 
 - (void)saveNewAPIEndpoint:(NSString *)endpoint;
-- (NSString *)apiEndpointURL;
-- (void)saveNewDeviceId:(NSString *)deviceId;
 - (NSString *)deviceId;
 
 - (void)logAction:(NSString *)action;
-- (void)sendQueueNow;
+- (void)sendQueueNow:(NSMutableDictionary *) dic;
 - (void)notify:(NSString *)message withTitle:(NSString *)title;
 
 - (void)numberOfLocationsInQueue:(void(^)(long num))callback;

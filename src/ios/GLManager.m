@@ -20,14 +20,11 @@
 
 @property (strong, nonatomic) CLLocationManager *locationManager;
 @property (strong, nonatomic) CMMotionActivityManager *motionActivityManager;
-@property (strong, nonatomic) CMPedometer *pedometer;
 
 @property BOOL trackingEnabled;
 @property BOOL sendInProgress;
-@property BOOL batchInProgress;
 @property (strong, nonatomic) CLLocation *lastLocation;
 @property (strong, nonatomic) CMMotionActivity *lastMotion;
-@property (strong, nonatomic) NSDate *lastSentDate;
 @property (strong, nonatomic) NSString *lastTimestamp;
 @property (strong, nonatomic) NSString *lastLocationName;
 
@@ -47,7 +44,6 @@ NSNumber *_sendingInterval;
 NSArray *_tripModes;
 bool _currentTripHasNewData;
 bool _storeNextLocationAsTripStart = NO;
-int _pointsPerBatch;
 long _currentPointsInQueue;
 NSString *_deviceId;
 CLLocationDistance _currentTripDistanceCached;
@@ -88,16 +84,6 @@ AFHTTPSessionManager *_httpClient;
     [self setupHTTPClient];
 }
 
-- (NSString *)apiEndpointURL {
-    return [[NSUserDefaults standardUserDefaults] stringForKey:GLAPIEndpointDefaultsName];
-}
-
-- (void)saveNewDeviceId:(NSString *)deviceId {
-    _deviceId = deviceId;
-    [[NSUserDefaults standardUserDefaults] setObject:deviceId forKey:GLDeviceIdDefaultsName];
-    // Always call saveNewAPIEndpoint after saveNewDeviceId to synchronize changes
-}
-
 - (NSString *)deviceId {
     NSString *d = [[NSUserDefaults standardUserDefaults] stringForKey:GLDeviceIdDefaultsName];
     if(d == nil) {
@@ -124,9 +110,8 @@ AFHTTPSessionManager *_httpClient;
     [self.locationManager performSelector:@selector(startUpdatingLocation) withObject:nil afterDelay:5.0];
 }
 
-- (void)sendQueueNow {
-    NSMutableSet *syncedUpdates = [NSMutableSet set];
-    NSMutableArray *locationUpdates = [NSMutableArray array];
+- (void)sendQueueNow:(NSMutableDictionary *) dic {
+    self.sendInProgress = YES;
     
     NSString *endpoint = [[NSUserDefaults standardUserDefaults] stringForKey:GLAPIEndpointDefaultsName];
     
@@ -141,34 +126,13 @@ AFHTTPSessionManager *_httpClient;
     // Concat user data do endpoint
     endpoint = [NSString stringWithFormat:@"%@/%@/%@", endpoint, email, userDeviceId];
     
-    __block long _numInQueue = 0;
+    NSMutableArray *arr = [[NSMutableArray alloc] init];
     
-    [self.db accessCollection:GLLocationQueueName withBlock:^(id<LOLDatabaseAccessor> accessor) {
+    for (NSString* key in dic) {
+        NSMutableDictionary *dic2 = dic[key];
         
-        [accessor enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSDictionary *object) {
-            if(key && object) {
-                [syncedUpdates addObject:key];
-                [locationUpdates addObject:object];
-            } else if(key) {
-                // Remove nil objects
-                [accessor removeDictionaryForKey:key];
-            }
-            return (BOOL)(locationUpdates.count >= _pointsPerBatch);
-        }];
-        
-        [accessor countObjectsUsingBlock:^(long num) {
-            _numInQueue = num;
-        }];
-    }];
-    
-    NSMutableArray *arr = [NSMutableArray array];
-    
-    for( NSMutableSet* key in locationUpdates ) {
-        
-        NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
-        
-        NSArray *coordinates = [[key valueForKey:@"geometry"] valueForKey:@"coordinates"];
-        NSMutableSet *properties = [key valueForKey:@"properties"];
+        NSArray *coordinates = [[dic2 valueForKey:@"geometry"] valueForKey:@"coordinates"];
+        NSMutableSet *properties = [dic2 valueForKey:@"properties"];
         
         NSString *timestamp = [properties valueForKey:@"timestamp"];
         NSString *userId = [properties valueForKey:@"user_id"];
@@ -183,27 +147,18 @@ AFHTTPSessionManager *_httpClient;
         [subDic setValue:userId forKey:@"tpctmtID"];
         [subDic setValue:timestamp forKey:@"tpcDataHoraExibicao"];
         
-        [dic setValue:subDic forKey:@"id"];
+        [dic2 setValue:subDic forKey:@"id"];
         
-        [dic setValue:coordinates[1] forKey:@"tpcLatitude"];
-        [dic setValue:coordinates[0] forKey:@"tpcLongitude"];
+        [dic2 setValue:coordinates[1] forKey:@"tpcLatitude"];
+        [dic2 setValue:coordinates[0] forKey:@"tpcLongitude"];
         
-        [arr addObject:dic];
+        [arr addObject: dic2];
     }
     
     NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:arr options:kNilOptions error:&error];
     
     NSString *strData = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
-    
-    if( locationUpdates.count < _pointsPerBatch ) {
-        // return;
-    }
-    
-    NSLog(@"Endpoint: %@", endpoint);
-    NSLog(@"Updates in post: %lu", (unsigned long)locationUpdates.count);
-    
-    self.sendInProgress = YES;
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:endpoint] cachePolicy:NSURLRequestReloadIgnoringCacheData  timeoutInterval:120];
     
@@ -217,51 +172,50 @@ AFHTTPSessionManager *_httpClient;
     [[manager dataTaskWithRequest:request uploadProgress:nil downloadProgress:nil completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
         
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
-        
         NSInteger statusCode = [httpResponse statusCode];
         
         if( statusCode == 200 ) {
-            self.lastSentDate = NSDate.date;
-//            NSDictionary *geocode = [responseObject objectForKey:@"geocode"];
-//            if(geocode && ![geocode isEqual:[NSNull null]]) {
-//                self.lastLocationName = [geocode objectForKey:@"full_name"];
-//            } else {
-//                self.lastLocationName = @"";
-//            }
-//
             [self.db accessCollection:GLLocationQueueName withBlock:^(id<LOLDatabaseAccessor> accessor) {
-                for(NSString *key in syncedUpdates) {
-                    [accessor removeDictionaryForKey:key];
+                for(NSString *key in dic) {
+                    NSMutableDictionary *dic2 = dic[key];
+
+                    [accessor removeDictionaryForKey:[dic2 valueForKey:@"key"]];
                 }
             }];
             
-            [self.db accessCollection:GLLocationQueueName withBlock:^(id<LOLDatabaseAccessor> accessor) {
-                [accessor countObjectsUsingBlock:^(long num) {
-                    _currentPointsInQueue = num;
-                    NSLog(@"Number remaining: %ld", num);
-                    if(num >= _pointsPerBatch) {
-                        self.batchInProgress = YES;
-                    } else {
-                        self.batchInProgress = NO;
-                    }
-                }];
-            }];
+//            [self.db accessCollection:GLLocationQueueName withBlock:^(id<LOLDatabaseAccessor> accessor) {
+//                [accessor countObjectsUsingBlock:^(long num) {
+//                    _currentPointsInQueue = num;
+//                    NSLog(@"Number remaining: %ld", num);
+//                    if(num >= _pointsPerBatch) {
+//                        self.batchInProgress = YES;
+//                    } else {
+//                        self.batchInProgress = NO;
+//                    }
+//                }];
+//            }];
         } else if( statusCode == 401 ) {
-            self.batchInProgress = NO;
+            [self.db accessCollection:GLLocationQueueName withBlock:^(id<LOLDatabaseAccessor> accessor) {
+                for(NSString *key in dic) {
+                    NSMutableDictionary *dic2 = dic[key];
+                    
+                    [accessor removeDictionaryForKey:[dic2 valueForKey:@"key"]];
+                }
+            }];
             
             [[NSUserDefaults standardUserDefaults] setValue:UNAVAILABLE forKey:IS_CONNECTION_OK];
-            
+            [[GLManager sharedManager] stopAllUpdates];
+        } else if( statusCode == 500 ){ // remove os pontos remanescentes
             [self.db accessCollection:GLLocationQueueName withBlock:^(id<LOLDatabaseAccessor> accessor) {
-                for(NSString *key in syncedUpdates) {
-                    [accessor removeDictionaryForKey:key];
+                for(NSString *key in dic) {
+                    NSMutableDictionary *dic2 = dic[key];
+                    
+                    [accessor removeDictionaryForKey:[dic2 valueForKey:@"key"]];
                 }
             }];
             
-            [[GLManager sharedManager] stopAllUpdates];
         } else {
-            self.batchInProgress = NO;
             [self notify:error.localizedDescription withTitle:@"HTTP Error"];
-            self.sendInProgress = NO;
             
             if([responseObject objectForKey:@"error"]) {
                 [self notify:[responseObject objectForKey:@"error"] withTitle:@"HTTP Error"];
@@ -269,15 +223,9 @@ AFHTTPSessionManager *_httpClient;
                 [self notify:@"Servidor desconhecido" withTitle:@"HTTP Error"];
             }
         }
-        self.sendInProgress = NO;
         
-        if (!error) {
-            NSLog(@"Reply JSON: %@", responseObject);
-        } else {
-            NSLog(@"Error: %@", error);
-            NSLog(@"Response: %@",response);
-            NSLog(@"Response Object: %@",responseObject);
-        }
+        self.sendInProgress = NO;
+
     }] resume];
     
 }
@@ -298,7 +246,6 @@ AFHTTPSessionManager *_httpClient;
                                                                                               @"action": action,
                                                                                               @"battery_state": [self currentBatteryState],
                                                                                               @"battery_level": [self currentBatteryLevel],
-                                                                                              @"wifi": [GLManager currentWifiHotSpotName],
                                                                                               @"device_id": _deviceId
                                                                                               }
                                                                                       }];
@@ -397,6 +344,10 @@ AFHTTPSessionManager *_httpClient;
     
     if(CMMotionActivityManager.isActivityAvailable) {
         [self.motionActivityManager startActivityUpdatesToQueue:[NSOperationQueue mainQueue] withHandler:^(CMMotionActivity *activity) {
+            if( self.sendInProgress ) {
+                return;
+            }
+            
             self.lastMotion = activity;
             [[NSNotificationCenter defaultCenter] postNotificationName:GLNewDataNotification object:self];
             
@@ -409,24 +360,32 @@ AFHTTPSessionManager *_httpClient;
                 }];
             }];
             
-            
             if( _numInQueue > 0 ) { //  has value in local database
-                NSMutableArray *locationUpdates = [NSMutableArray array];
+                
+                NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
+                __block NSDictionary *lastObject = nil;
                 
                 [self.db accessCollection:GLLocationQueueName withBlock:^(id<LOLDatabaseAccessor> accessor) {
                     
                     [accessor enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSDictionary *object) {
                         if(key && object) {
-                            [locationUpdates addObject:object];
+                            NSMutableDictionary *m = [object mutableCopy];
+                            
+                            [m setValue:key forKey:@"key"]; // add key to remove item on success 200
+                            
+                            NSMutableDictionary *properties = [object objectForKey:@"properties"];
+                            NSString *timeString = [properties valueForKey:@"timestamp"];
+                            
+                            [dic setObject:m forKey:timeString];
+                            
+                            lastObject = object;
                         }
-                        return (BOOL)(locationUpdates.count >= _pointsPerBatch);
+                        return (BOOL)(dic.count >= _numInQueue);
                     }];
                     
                 }];
                 
-                NSDictionary *object = [locationUpdates lastObject];
-                
-                NSMutableDictionary *properties = [object objectForKey:@"properties"];
+                NSMutableDictionary *properties = [lastObject objectForKey:@"properties"];
                 NSString *timeString = [properties valueForKey:@"timestamp"];
                 
                 long timeStamp = [timeString longLongValue];
@@ -437,15 +396,13 @@ AFHTTPSessionManager *_httpClient;
                 BOOL timeElapsed = [(NSDate *)[date dateByAddingTimeInterval:300] compare:NSDate.date] == NSOrderedAscending; // after 5 minutes on stationary mode, try to send data to server
                 
                 if( timeElapsed ) {
-                    [self sendQueueNow];
+                    [self sendQueueNow:dic];
                 }
                 
                 
             }
         }];
     }
-    
-    _pointsPerBatch = self.pointsPerBatch;
     
     // Set the last location if location manager has a last location.
     // This will be set for example when the app launches due to a signification location change,
@@ -466,47 +423,6 @@ AFHTTPSessionManager *_httpClient;
         [self.motionActivityManager stopActivityUpdates];
         self.lastMotion = nil;
     }
-}
-
-- (void)sendingStarted {
-    self.sendInProgress = YES;
-    [[NSNotificationCenter defaultCenter] postNotificationName:GLSendingStartedNotification object:self];
-}
-
-- (void)sendingFinished {
-    self.sendInProgress = NO;
-    [[NSNotificationCenter defaultCenter] postNotificationName:GLSendingFinishedNotification object:self];
-}
-
-- (void)sendQueueIfTimeElapsed {
-    BOOL sendingEnabled = [self.sendingInterval integerValue] > -1;
-    if(!sendingEnabled) {
-        return;
-    }
-    
-    if(self.sendInProgress) {
-        NSLog(@"Send is already in progress");
-        return;
-    }
-    
-    BOOL timeElapsed = [(NSDate *)[self.lastSentDate dateByAddingTimeInterval:[self.sendingInterval doubleValue]] compare:NSDate.date] == NSOrderedAscending;
-    
-    // Send if time has elapsed,
-    // or if we're in the middle of flushing
-    if(timeElapsed || self.batchInProgress) {
-        NSLog(@"Sending a batch now");
-        // [self sendQueueNow];
-        self.lastSentDate = NSDate.date;
-    }
-}
-
-- (void)sendQueueIfNotInProgress {
-    if(self.sendInProgress) {
-        return;
-    }
-    
-    // [self sendQueueNow];
-    self.lastSentDate = NSDate.date;
 }
 
 #pragma mark - Trips
@@ -632,20 +548,8 @@ AFHTTPSessionManager *_httpClient;
     if(!self.tripInProgress) {
         return;
     }
-    
-    /*
-     if((false) && [CMPedometer isStepCountingAvailable]) {
-     [self.pedometer queryPedometerDataFromDate:self.currentTripStart toDate:[NSDate date] withHandler:^(CMPedometerData *pedometerData, NSError *error) {
-     if(pedometerData) {
-     [self writeTripToDB:autopause steps:[pedometerData.numberOfSteps integerValue]];
-     } else {
-     [self writeTripToDB:autopause steps:0];
-     }
-     }];
-     } else {
-     */
+
     [self writeTripToDB:autopause steps:0];
-    // }
     
     self.tripStartLocationDictionary = nil;
     [[NSUserDefaults standardUserDefaults] setObject:nil forKey:GLTripStartTimeDefaultsName];
@@ -679,7 +583,6 @@ AFHTTPSessionManager *_httpClient;
                                               @"distance": [NSNumber numberWithDouble:self.currentTripDistance],
                                               @"stopped_automatically": @(autopause),
                                               @"steps": [NSNumber numberWithInteger:numberOfSteps],
-                                              @"wifi": [GLManager currentWifiHotSpotName],
                                               @"device_id": _deviceId
                                               }
                                       };
@@ -844,20 +747,6 @@ AFHTTPSessionManager *_httpClient;
     }
 }
 
-- (int)pointsPerBatch {
-    if([self defaultsKeyExists:GLPointsPerBatchDefaultsName]) {
-        return (int)[[NSUserDefaults standardUserDefaults] integerForKey:GLPointsPerBatchDefaultsName];
-    } else {
-        return 200;
-    }
-}
-- (void)setPointsPerBatch:(int)points {
-    [[NSUserDefaults standardUserDefaults] setInteger:points forKey:GLPointsPerBatchDefaultsName];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-    _pointsPerBatch = points;
-}
-
-
 #pragma mark GLManager
 
 - (NSNumber *)sendingInterval {
@@ -875,15 +764,6 @@ AFHTTPSessionManager *_httpClient;
     [[NSUserDefaults standardUserDefaults] setValue:newValue forKey:GLSendIntervalDefaultsName];
     [[NSUserDefaults standardUserDefaults] synchronize];
     _sendingInterval = newValue;
-}
-
-- (NSDate *)lastSentDate {
-    return (NSDate *)[[NSUserDefaults standardUserDefaults] objectForKey:GLLastSentDateDefaultsName];
-}
-
-- (void)setLastSentDate:(NSDate *)lastSentDate {
-    [[NSUserDefaults standardUserDefaults] setObject:lastSentDate forKey:GLLastSentDateDefaultsName];
-    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 #pragma mark - CLLocationManager Delegate Methods
@@ -915,7 +795,6 @@ AFHTTPSessionManager *_httpClient;
                                              @"horizontal_accuracy": [NSNumber numberWithInt:visit.horizontalAccuracy],
                                              @"battery_state": [self currentBatteryState],
                                              @"battery_level": [self currentBatteryLevel],
-                                             @"wifi": [GLManager currentWifiHotSpotName],
                                              @"device_id": _deviceId
                                              }
                                      };
@@ -924,18 +803,13 @@ AFHTTPSessionManager *_httpClient;
         }];
         
     }
-    // [self sendQueueIfTimeElapsed];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
     [[NSNotificationCenter defaultCenter] postNotificationName:GLNewDataNotification object:self];
     self.lastLocation = (CLLocation *)locations[locations.count-1];
     self.lastLocationDictionary = [self currentDictionaryFromLocation:self.lastLocation];
-    
-    // NSLog(@"Received %d locations", (int)locations.count);
-    
-    // NSLog(@"%@", locations);
-    
+
     // Queue the point in the database
     [self.db accessCollection:GLLocationQueueName withBlock:^(id<LOLDatabaseAccessor> accessor) {
         
@@ -966,8 +840,8 @@ AFHTTPSessionManager *_httpClient;
                 break;
         }
         
-        for(int i=0; i<locations.count; i++) {
-            CLLocation *loc = locations[i];
+        if( [locations count] > 0 ) {
+            CLLocation *loc = locations[0];
             NSString *timestamp = [GLManager iso8601DateStringFromDate:loc.timestamp];
             
             self.lastTimestamp = timestamp;
@@ -1007,8 +881,6 @@ AFHTTPSessionManager *_httpClient;
         }
         
     }];
-    
-    // [self sendQueueIfTimeElapsed];
 }
 
 - (NSDictionary *)currentDictionaryFromLocation:(CLLocation *)loc {
@@ -1033,7 +905,6 @@ AFHTTPSessionManager *_httpClient;
                                                                                             @"motion": [self motionArrayFromLastMotion],
                                                                                             @"battery_state": [self currentBatteryState],
                                                                                             @"battery_level": [self currentBatteryLevel],
-                                                                                            @"wifi": [GLManager currentWifiHotSpotName],
                                                                                             }]
                              };
     if(_deviceId && _deviceId.length > 0) {
@@ -1071,9 +942,6 @@ AFHTTPSessionManager *_httpClient;
         region.notifyOnExit = YES;
         [self.locationManager startMonitoringForRegion:region];
     }
-    
-    // Send the queue now to flush all remaining points
-    // [self sendQueueIfNotInProgress];
     
     // If a trip was in progress, stop it now
     if(self.tripInProgress) {
@@ -1196,18 +1064,6 @@ AFHTTPSessionManager *_httpClient;
 - (BOOL)defaultsKeyExists:(NSString *)key {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     return [[[defaults dictionaryRepresentation] allKeys] containsObject:key];
-}
-
-+ (NSString *)currentWifiHotSpotName {
-    NSString *wifiName = @"";
-    NSArray *ifs = (__bridge_transfer id)CNCopySupportedInterfaces();
-    for (NSString *ifnam in ifs) {
-        NSDictionary *info = (__bridge_transfer id)CNCopyCurrentNetworkInfo((__bridge CFStringRef)ifnam);
-        if (info[@"SSID"]) {
-            wifiName = info[@"SSID"];
-        }
-    }
-    return wifiName;
 }
 
 #pragma mark - FMDB

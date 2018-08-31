@@ -63,6 +63,9 @@
         
         <hook type="before_compile" src="hook/android/hook.js" />
 
+        <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
+        <resource-file src="aar/yello_framework.aar" target="aar/yello_framework.aar" />
+
     </platform>
     <platform name="ios">
         <config-file target="*-Info.plist" parent="NSLocationAlwaysAndWhenInUseUsageDescription">

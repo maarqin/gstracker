@@ -31,7 +31,7 @@
     // Custom configuration
     [GLManager sharedManager].significantLocationMode = kGLSignificantLocationEnabled;
     [GLManager sharedManager].activityType = CLActivityTypeAutomotiveNavigation;
-    [GLManager sharedManager].desiredAccuracy = kCLLocationAccuracyHundredMeters;
+    [GLManager sharedManager].desiredAccuracy = kCLLocationAccuracyKilometer;
     [GLManager sharedManager].pausesAutomatically = NO;
     [[GLManager sharedManager] setSendingInterval:[NSNumber numberWithInteger:200]];
     [[GLManager sharedManager] setDefersLocationUpdates:300];

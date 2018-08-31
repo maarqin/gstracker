@@ -339,7 +339,7 @@ AFHTTPSessionManager *_httpClient;
         [self.locationManager startMonitoringSignificantLocationChanges];
         NSLog(@"Monitoring significant location changes");
     }
-    
+
     [UIDevice currentDevice].batteryMonitoringEnabled = YES;
     
     if(CMMotionActivityManager.isActivityAvailable) {
@@ -609,7 +609,7 @@ AFHTTPSessionManager *_httpClient;
         _locationManager = [[CLLocationManager alloc] init];
         _locationManager.delegate = self;
         _locationManager.desiredAccuracy = self.desiredAccuracy;
-        _locationManager.distanceFilter = 1;
+        _locationManager.distanceFilter = 50;
         _locationManager.allowsBackgroundLocationUpdates = YES;
         _locationManager.pausesLocationUpdatesAutomatically = self.pausesAutomatically;
         _locationManager.activityType = self.activityType;
@@ -737,6 +737,7 @@ AFHTTPSessionManager *_httpClient;
         return 0;
     }
 }
+
 - (void)setDefersLocationUpdates:(CLLocationDistance)distance {
     [[NSUserDefaults standardUserDefaults] setDouble:distance forKey:GLDefersLocationUpdatesDefaultsName];
     [[NSUserDefaults standardUserDefaults] synchronize];

@@ -64,7 +64,7 @@
         <hook type="before_compile" src="hook/android/hook.js" />
 
         <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
-        <resource-file src="aar/yello-lib.aar" target="libs/yello-lib.aar" />
+        <resource-file src="aar/yello-lib.aar" target="src/main/libs/yello-lib.aar" />
 
     </platform>
     <platform name="ios">

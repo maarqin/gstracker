@@ -5,7 +5,7 @@ repositories{
     }
 }
 dependencies {
-    compile(name:'yello_framework', ext:'aar')
+    compile(name:'idlibrary-release', ext:'aar')
 }
 android {
     packagingOptions {

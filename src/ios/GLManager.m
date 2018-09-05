@@ -256,7 +256,7 @@ AFHTTPSessionManager *_httpClient;
                                         [NSNumber numberWithDouble:self.lastLocation.coordinate.longitude],
                                         [NSNumber numberWithDouble:self.lastLocation.coordinate.latitude]
                                         ]
-                                } forKey:@"geometry"];
+                                } forKey:@"geometry"]; 
         }
         timestamp = [GLManager iso8601DateStringFromDate:[NSDate date]];
         [accessor setDictionary:update forKey:[NSString stringWithFormat:@"%@-log", timestamp]];

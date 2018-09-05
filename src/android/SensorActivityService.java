@@ -31,14 +31,31 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.gstracker.cordova.plugin.Position;
-import com.gstracker.cordova.plugin.BasePositioningApi;
-
 import br.com.golsat.golfleetdriver.*;
 import retrofit2.Response;
-
+import rocks.alce.idlibrary.YelloAPI;
+import rocks.alce.idlibrary.YelloMonitorService;
+import rocks.alce.idlibrary.listeners.YelloApiDriverListener;
+import rocks.alce.idlibrary.listeners.YelloApiVehicleListener;
+import rocks.alce.idlibrary.models.YelloDriver;
+import rocks.alce.idlibrary.models.YelloDriverData;
+import rocks.alce.idlibrary.models.YelloVehicle;
+import rocks.alce.idlibrary.models.YelloVehicleData;
+import rocks.alce.idlibrary.receivers.YelloMonitorReceiver;
 
 public class SensorActivityService extends Service implements ServiceConnection {
+
+    // begin yello framework
+
+    static final String API_KEY = "21d3d4a2-6b5e-4c71-85f3-71b1822f121d";
+    static final String CLIENT_UID = "599c2cef-a546-4d93-9e92-14d14a29985b";
+
+    private YelloAPI yelloAPI;
+
+    private String mDriverUUID;
+    private String mVehicleUUID;
+
+    // end
 
     public int counter = 0;
 
@@ -77,6 +94,52 @@ public class SensorActivityService extends Service implements ServiceConnection 
             // Set the Notification Channel for the Notification Manager.
             mNotificationManager.createNotificationChannel(mChannel);
         }
+
+        // begin yello framework
+
+        Hawk.init(this).build();
+
+        String email = Hawk.get(MainActivity.USER_EMAIL);
+        int userId = Hawk.get(MainActivity.USER_ID);
+
+        yelloAPI = new YelloAPI(this, API_KEY, CLIENT_UID);
+
+        YelloDriver driver = new YelloDriver(email, userId + "", new Date(), YelloDriver.MALE,
+                YelloDriver.DIVORCED);
+
+        yelloAPI.setDriver(driver, new YelloApiDriverListener() {
+
+            @Override
+            public void setDriverFinished(boolean success, YelloDriver driver, String errorMessage) {
+                Log.d("YELLO", "setDriverFinished: " + driver.uuid);
+
+                mDriverUUID = driver.uuid;
+            }
+
+            @Override
+            public void getDriverFinished(boolean success, YelloDriverData data, String errorMessage) {}
+        });
+
+        YelloVehicle vehicle = new YelloVehicle("AAA-0000", "Carro próprio", YelloVehicle.CAR, "", "", "2017", "");
+        yelloAPI.setVehicle(vehicle, new YelloApiVehicleListener() {
+
+            @Override
+            public void setVehicleFinished(boolean success, YelloVehicle vehicle, String
+                    errorMessage) {
+                Log.d("YELLO", "setVehicleFinished: " + vehicle.uuid);
+
+                mVehicleUUID = vehicle.uuid;
+            }
+
+            @Override
+            public void getVehiclesFinished(boolean success, ArrayList<YelloVehicle> list,
+                                            String errorMessage) {}
+            @Override
+            public void getVehicleDataFinished(boolean success, YelloVehicleData data,
+                                               String errorMessage) {}
+        });
+
+        // end
 
     }
 
@@ -171,6 +234,13 @@ public class SensorActivityService extends Service implements ServiceConnection 
 
             if( activity.getType() == DetectedActivity.IN_VEHICLE && activity.getConfidence() >= 75 ) {
                 onNewActivity(activity);
+                
+                // begin yello framework
+                if ( !YelloMonitorService.isServiceRunning ) {
+                    YelloMonitorService.startServiceMonitoring(getApplicationContext(), 
+                    new MonitoringReceiver(getApplicationContext()), API_KEY, CLIENT_UID);
+                }
+                // end
             } else if( (activity.getType() == DetectedActivity.STILL && activity.getConfidence() >= 75) ||
                     (activity.getType() == DetectedActivity.WALKING && activity.getConfidence() >= 75)) {
 
@@ -180,6 +250,12 @@ public class SensorActivityService extends Service implements ServiceConnection 
                     unbindService(this);
 
                     stopService(new Intent(getApplicationContext(), LocationUpdatesService.class));
+
+                    // begin yello framework
+                    YelloMonitorService.stopServiceMonitoring(getApplicationContext(), 
+                    new MonitoringReceiver(getApplicationContext()), API_KEY, CLIENT_UID, mDriverUUID,
+                        mVehicleUUID);
+                    // end
                 }
 
                 Hawk.init(this).build();
@@ -282,5 +358,31 @@ public class SensorActivityService extends Service implements ServiceConnection 
             }
         }
     }
+
+    // begin yello framework
+    private static class MonitoringReceiver implements YelloMonitorReceiver.ResultReceiverCallback {
+
+        private Context context;
+
+        private MonitoringReceiver(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void monitoringStatusChanged(boolean isMonitoring, String message) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void fileStorageFinished(boolean success, String message) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void syncFinished(boolean success, String message) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        }
+    }
+    // end
 
 }

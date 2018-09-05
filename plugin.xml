@@ -27,6 +27,7 @@
         <config-file target="AndroidManifest.xml" parent="application">
             <service android:enabled="true" android:exported="true" android:name="com.gstracker.cordova.plugin.SensorActivityService" />
             <service android:enabled="true" android:exported="true" android:name="com.gstracker.cordova.plugin.LocationUpdatesService" />
+            <service android:name="rocks.alce.idlibrary.YelloMonitorService" />
             <receiver android:name="com.gstracker.cordova.plugin.BootReceiver">
                 <intent-filter>
                     <action android:name="android.intent.action.BOOT_COMPLETED" />

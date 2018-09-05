@@ -105,39 +105,27 @@ public class SensorActivityService extends Service implements ServiceConnection 
 
         yelloAPI = new YelloAPI(this, API_KEY, CLIENT_UID);
 
-        YelloDriver driver = new YelloDriver(email, userId + "", new Date(), YelloDriver.MALE,
-                YelloDriver.DIVORCED);
-
-        yelloAPI.setDriver(driver, new YelloApiDriverListener() {
-
+        yelloAPI.getDriver(new YelloApiDriverListener() {
             @Override
-            public void setDriverFinished(boolean success, YelloDriver driver, String errorMessage) {
-                Log.d("YELLO", "setDriverFinished: " + driver.uuid);
+            public void getDriverFinished(boolean b, YelloDriverData driver, String s) {
+                Log.d("YELLO", "setDriverFinished: " + driver.driver.uuid);
 
-                mDriverUUID = driver.uuid;
+                mDriverUUID = driver.driver.uuid;
             }
-
-            @Override
-            public void getDriverFinished(boolean success, YelloDriverData data, String errorMessage) {}
         });
 
-        YelloVehicle vehicle = new YelloVehicle("AAA-0000", "Carro próprio", YelloVehicle.CAR, "", "", "2017", "");
-        yelloAPI.setVehicle(vehicle, new YelloApiVehicleListener() {
-
+        yelloAPI.getVehicles(new YelloApiVehicleListener() {
             @Override
-            public void setVehicleFinished(boolean success, YelloVehicle vehicle, String
-                    errorMessage) {
-                Log.d("YELLO", "setVehicleFinished: " + vehicle.uuid);
+            public void getVehiclesFinished(boolean b, ArrayList<YelloVehicle> arrayList, String s) {
 
-                mVehicleUUID = vehicle.uuid;
             }
 
             @Override
-            public void getVehiclesFinished(boolean success, ArrayList<YelloVehicle> list,
-                                            String errorMessage) {}
-            @Override
-            public void getVehicleDataFinished(boolean success, YelloVehicleData data,
-                                               String errorMessage) {}
+            public void getVehicleDataFinished(boolean b, YelloVehicleData vehicle, String s) {
+                Log.d("YELLO", "setVehicleFinished: " + vehicle.vehicle.uuid);
+
+                mVehicleUUID = vehicle.vehicle.uuid;
+            }
         });
 
         // end
